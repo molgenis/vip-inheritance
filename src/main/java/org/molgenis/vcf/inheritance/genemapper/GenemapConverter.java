@@ -14,7 +14,7 @@ import org.molgenis.vcf.inheritance.genemapper.model.Phenotype;
 
 public class GenemapConverter {
 
-  private GenemapConverter(){}
+  private GenemapConverter() {}
 
   public static final String COMMENT_PREFIX = "#";
 
@@ -32,7 +32,8 @@ public class GenemapConverter {
     }
   }
 
-  private static void writeToFile(BufferedWriter writer, List<GeneInheritanceValue> geneInheritanceValues) {
+  private static void writeToFile(
+      BufferedWriter writer, List<GeneInheritanceValue> geneInheritanceValues) {
     for (GeneInheritanceValue geneInheritanceValue : geneInheritanceValues) {
       try {
         writer.write(omimHitToString(geneInheritanceValue));
@@ -67,12 +68,15 @@ public class GenemapConverter {
 
   private static String inheritanceModesToString(Set<InheritanceMode> inheritanceModes) {
     StringBuilder result = new StringBuilder();
-    for (InheritanceMode inheritanceMode : inheritanceModes) {
-      if (result.length() != 0) {
-        result.append("&");
-      }
-      result.append(inheritanceMode.toString());
-    }
+    inheritanceModes.stream()
+        .sorted()
+        .forEach(
+            inheritanceMode -> {
+              if (result.length() != 0) {
+                result.append("/");
+              }
+              result.append(inheritanceMode.toString());
+            });
     return result.toString();
   }
 }

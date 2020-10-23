@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.molgenis.vcf.inheritance.genemapper.App;
 import org.springframework.boot.SpringApplication;
 import org.springframework.util.ResourceUtils;
 
@@ -21,7 +20,7 @@ class AppIT {
     String inputFile = ResourceUtils.getFile("classpath:input_genemap.txt").toString();
     String outputFile = sharedTempDir.resolve("expected.tsv").toString();
 
-    String[] args = {"-i", inputFile, "-o", outputFile};
+    String[] args = {"-i", inputFile, "-o", outputFile, "-f","-d"};
     SpringApplication.run(App.class, args);
 
     String actual = Files.readString(Path.of(outputFile));

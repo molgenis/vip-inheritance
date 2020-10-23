@@ -83,7 +83,7 @@ class AppCommandLineRunner implements CommandLineRunner {
     if (commandLine.hasOption(AppCommandLineOptions.OPT_OUTPUT)) {
       outputPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_OUTPUT));
     } else {
-      outputPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT).replace(".vcf", ".out.vcf"));
+      outputPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT).replace(".txt","out.tsv"));
     }
     return outputPath;
   }

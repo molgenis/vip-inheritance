@@ -56,7 +56,7 @@ public class OmimLineMapper {
         inheritanceModes.addAll(phenoInheritanceModes);
         if (phenotypeName.length() != 0) {
           phenotypeList.add(
-              Phenotype.builder().name(phenotypeName).inheritanceModes(inheritanceModes).build());
+              Phenotype.builder().name(phenotypeName).inheritanceModes(phenoInheritanceModes).build());
         }
       }
     }
@@ -70,8 +70,7 @@ public class OmimLineMapper {
   private static Set<InheritanceMode> mapInheritanceModes(String[] values) {
     Set<InheritanceMode> modes = new HashSet<>();
     for (String value : values) {
-      //FIXME what does '?' in '?AUTOSOMAL DOMINANT' mean
-      value = value.replace("?","").toUpperCase().trim();
+      value = value.toUpperCase().trim();
       switch (value) {
         case "Y-LINKED":
           modes.add(InheritanceMode.YL);
@@ -82,6 +81,9 @@ public class OmimLineMapper {
         case "X-LINKED RECESSIVE":
           modes.add(InheritanceMode.XR);
           break;
+        case "?X-LINKED RECESSIVE":
+          modes.add(InheritanceMode.QXR);
+          break;
         case "X-LINKED":
           modes.add(InheritanceMode.XL);
           break;
@@ -90,6 +92,9 @@ public class OmimLineMapper {
           break;
         case "AUTOSOMAL DOMINANT":
           modes.add(InheritanceMode.AD);
+          break;
+        case "?AUTOSOMAL DOMINANT":
+          modes.add(InheritanceMode.Q_AD);
           break;
         case "PSEUDOAUTOSOMAL RECESSIVE":
           modes.add(InheritanceMode.PR);

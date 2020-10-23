@@ -6,6 +6,35 @@ use warnings;
 use Bio::EnsEMBL::Variation::Utils::BaseVepPlugin;
 use base qw(Bio::EnsEMBL::Variation::Utils::BaseVepPlugin);
 
+=head1 NAME
+ Inheritance
+=head1 SYNOPSIS
+ mv Inheritance.pm ~/.vep/Plugins
+ ./vep -i variations.vcf --plugin Inheritance,/FULL_PATH_TO_PREPROCESSED_INHERITANCE_FILE/gene_inheritance_mdoes.tsv
+=head1 DESCRIPTION
+ Plugin to annotate consequences with inheritance modes based on their gene.
+=head1 MAPPING
+ Y-LINKED: YL
+ X-LINKED DOMINANT: XD
+ X-LINKED RECESSIVE: XR
+ X-LINKED RECESSIVE: Q_XR
+ X-LINKED: XL
+ AUTOSOMAL RECESSIVE: AR
+ AUTOSOMAL DOMINANT: AD
+ ?AUTOSOMAL DOMINANT: Q_AD
+ PSEUDOAUTOSOMAL RECESSIVE: PR
+ PSEUDOAUTOSOMAL DOMINANT: PD
+ ISOLATED CASES: IC
+ DIGENIC: DG
+ DIGENIC RECESSIVE: DGR
+ DIGENIC DOMINANT: DGD
+ MITOCHONDRIAL: MT
+ MULTIFACTORIAL: MF
+ SOMATIC MUTATION: SM
+ SOMATIC MOSAICISM: SMM
+ INHERITED CHROMOSOMAL IMBALANCE: ICI
+=cut
+
 sub version {
     return '1.0';
 }
