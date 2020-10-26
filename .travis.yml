@@ -1,0 +1,23 @@
+os: linux
+dist: bionic
+language: java
+jdk: openjdk11
+cache:
+  directories:
+    - "$HOME/.m2"
+addons:
+  sonarcloud:
+    organization: molgenis
+    token:
+      secure: KllHGH4ugHzXbcjNxmOdfxTflqgpYuMeFP95L2pLFn/nQq5p9CLbIiguN13Ha+J60/DAqcOG5wwMxso83B4+MVEQj+WPn/8X0Whn17oecVEABjV0h1Kw5+G7al5CtPWxL7Uv66xy/MW7mopoHMAPrm0t3S2V4vYWNprsCjKQu92dPk3L+OpyV7oZVDhrkxRvF4SsaWT65J5+z0gpsBp5rFYRIw51+aMFkSl3EUac2fVx4k6IO7P7Sw7gX0cC+3CKm2I1pdSfw1pXqPky79kByMtoJgc7ylcm8h7wOX6ZqLmC0FsG84IQ9xGnxeq9iqCV8RyHExJXQ9nPE2CM7SVJEJn4farDJmh2M1sbUNUHO7+GsQBvd33y9NLnBrJylWFq0Xnd3w0IpdBx8YVkTGSAwcB0ZA+c9QPthN5I3K/MK2iiP+JkgiB0sbO3qTM7bo3Cxkvnxilvx1J/lIaGK8db/klkv2B61zwSUOL/GP0cBv9EQTe+3gOS0Xs72YTpcCErWXIRu+QVjkGtNXPQlQKgcenl8qJRNXBGqwO3L0gjZpWp5U2oEcDbkuRx4pVuCcmNKI2/pj8t31l8INe5tC8xphEIpkqvX0rIYqUnMFcW7n4HsTnBlluafqwZCwypUIyIJAJNBwooQgOhWwKkgMEd2IxUSwMZwO7ZH849XorRSoQ=
+script:
+  - mvn clean install sonar:sonar -Pcoverage -Dsonar.projectKey=molgenis_vip-inheritance
+deploy:
+  provider: releases
+  api_key:
+    secure: gFGJXDOffqdyYoZsUxzOLEbYIU70Xww8THJHVPAcq2GJk8ZXlHB2w7WFQ8M2er5/rlF3HjwpKaluha0p+9WHWqjUbjxB1O4o/mYOzLl7EEDKd82ut0XmPRAbg/ZusRNxzhVA9H5IkrKITYipnCeLssjYWMS2SV1qOyN+CXB7f7ZUoFPktYyU1C4Nltd5TQl5tTiOPRNT8BjXGAfmlKdBciMsz4YZDUV+dPdrAffhkbOvdrqo+/dIAN8LVtajFqbAhESrK7DoGverWuxgYnZoe//f9zNCn656edn2iQrB8dWuv5e6N4g4YpbBqJVQDkAck/KEXReQfSZFhx3l/7A/Vy5/MOuVVAaBuncbQTgGjRrweaqEstKyZDc4+YzmXOvJU1jW3MlNBmbrDMqExylitCf4cDEU2F49EIcNYIILXDdbE5KGA7SVg9KXKJYtehngF65/lOQjNVlF9963CS47JdQJjGJhHDhaaHrKTX/UH+FbZvpuXNWJhgrUg7sx++RhybbS+oe2FfCKnNYG9bKpgnzWJPtwhIz60TTbrEXMKHX6nV6sZpRBdFHzUrXC577/GhclAMUr/vX5SHthMpZGkDf6x60dcMs8AaDM9T+RIifAUu+ucvR70aoVm0aIgUKDgdlOX/D4aJAFyaTYwBcnohQT2pB4HDyrd2B4A67jLUI=
+  file: genemap-mapper.jar
+  prerelease: true
+  on:
+    tags: true
+  edge: true # opt in to dpl v2
