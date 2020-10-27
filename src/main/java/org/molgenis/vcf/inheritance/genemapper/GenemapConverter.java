@@ -56,7 +56,7 @@ public class GenemapConverter {
     StringBuilder result = new StringBuilder();
     for (Phenotype phenotype : phenotypes) {
       if (result.length() != 0) {
-        result.append(";");
+        result.append(",");
       }
       result.append(
           String.format(
