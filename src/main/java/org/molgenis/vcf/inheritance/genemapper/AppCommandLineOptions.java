@@ -30,13 +30,13 @@ class AppCommandLineOptions {
             .hasArg(true)
             .required()
             .longOpt(OPT_INPUT_LONG)
-            .desc("Input VCF file (.vcf or .vcf.gz).")
+            .desc("Input OMIM genemap2 file.")
             .build());
     appOptions.addOption(
         Option.builder(OPT_OUTPUT)
             .hasArg(true)
             .longOpt(OPT_OUTPUT_LONG)
-            .desc("Output VCF file (.vcf or .vcf.gz).")
+            .desc("Output file (.tsv).")
             .build());
     appOptions.addOption(
         Option.builder(OPT_FORCE)

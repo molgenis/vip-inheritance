@@ -1,6 +1,7 @@
 package org.molgenis.vcf.inheritance.genemapper;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,10 +50,9 @@ public class OmimLineMapper {
       Pattern p = Pattern.compile("(.*),\\s(\\d*\\s\\(\\d*\\)),(.*)");
       Matcher m = p.matcher(phenotypeString);
       if (m.matches()) {
-        String phenotypeName = replaceIlligalChars(m.group(1));
+        String phenotypeName = replaceIllegalChars(m.group(1));
         String[] inheritance = m.group(3).split(",");
-        Set<InheritanceMode> phenoInheritanceModes;
-        phenoInheritanceModes = mapInheritanceModes(inheritance);
+        Set<InheritanceMode> phenoInheritanceModes = mapInheritanceModes(inheritance);
         inheritanceModes.addAll(phenoInheritanceModes);
         if (phenotypeName.length() != 0) {
           phenotypeList.add(
@@ -63,12 +63,12 @@ public class OmimLineMapper {
     return phenotypeList;
   }
 
-  private static String replaceIlligalChars(String value) {
+  private static String replaceIllegalChars(String value) {
     return value.replace(",", "_").replace(" ", "_");
   }
 
   private static Set<InheritanceMode> mapInheritanceModes(String[] values) {
-    Set<InheritanceMode> modes = new HashSet<>();
+    EnumSet<InheritanceMode> modes = EnumSet.noneOf(InheritanceMode.class);
     for (String value : values) {
       value = value.toUpperCase().trim();
       switch (value) {
