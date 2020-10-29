@@ -16,16 +16,14 @@ usage: java -jar genemap-mapper.jar -v
 ```
 
 ###Mapping
-|OMIM Inheritance|Annotation|
+|OMIM Inheritance*|Annotation|
 |---|---|
 |Y-LINKED|YL|
 |X-LINKED DOMINANT|XD|
 |X-LINKED RECESSIVE|XR|
-|?X-LINKED RECESSIVE|Q_XR|
 |X-LINKED|XL|
 |AUTOSOMAL RECESSIVE|AR|
 |AUTOSOMAL DOMINANT|AD|
-|?AUTOSOMAL DOMINANT|Q_AD|
 |PSEUDOAUTOSOMAL RECESSIVE|PR|
 |PSEUDOAUTOSOMAL DOMINANT|PD|
 |ISOLATED CASES|IC|
@@ -37,6 +35,7 @@ usage: java -jar genemap-mapper.jar -v
 |SOMATIC MUTATION|SM|
 |SOMATIC MOSAICISM|SMM|
 |INHERITED CHROMOSOMAL IMBALANCE|ICI|
+*:OMIM provisional inheritance modes (starting with ?) are mapped the same as non provisional values.
 
 ## Inheritance VEP plugin
 A VEP plugin to annotate consequences with inheritance modes based on their gene.

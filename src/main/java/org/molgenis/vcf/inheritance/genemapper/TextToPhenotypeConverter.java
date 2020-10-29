@@ -1,44 +1,26 @@
 package org.molgenis.vcf.inheritance.genemapper;
 
+import com.opencsv.bean.AbstractBeanField;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode;
-import org.molgenis.vcf.inheritance.genemapper.model.GeneInheritanceValue;
 import org.molgenis.vcf.inheritance.genemapper.model.Phenotype;
 
-public class OmimLineMapper {
+public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>, Object> {
+
   public static final String SUBVALUE_SEPARATOR = ";";
-  public static final String VALUE_SEPARATOR = ",";
   public static final int COMMENTS_INDEX = 12;
-  public static final int GENE_INDEX = 6;
+  public static final String PATTERN = "(.*),\\s(\\d*\\s\\(\\d*\\)),(.*)";
 
-  private OmimLineMapper() {}
-
-  static List<GeneInheritanceValue> parseOmimLine(String line) {
-    List<GeneInheritanceValue> geneInheritanceValues = new ArrayList<>();
-    String[] split = line.split("\t", -1);
-    String[] genes = split[GENE_INDEX].split(VALUE_SEPARATOR);
-    String[] phenotypes = split[COMMENTS_INDEX].split(SUBVALUE_SEPARATOR);
-    Set<InheritanceMode> inheritanceModes = new HashSet<>();
-    List<Phenotype> phenotypeList = processPhenotypes(phenotypes, inheritanceModes);
-
-    if (!inheritanceModes.isEmpty()) {
-      for (String gene : genes) {
-        GeneInheritanceValue geneInheritanceValue =
-            GeneInheritanceValue.builder()
-                .geneSymbol(gene.trim())
-                .inheritanceModes(inheritanceModes)
-                .phenotypes(phenotypeList)
-                .build();
-        geneInheritanceValues.add(geneInheritanceValue);
-      }
-    }
-    return geneInheritanceValues;
+  @Override
+  protected List<Phenotype> convert(String phenotypeValue){
+    String[] phenotypes = phenotypeValue.split(SUBVALUE_SEPARATOR);
+    EnumSet<InheritanceMode> inheritanceModes = EnumSet.noneOf(InheritanceMode.class);
+    return processPhenotypes(phenotypes, inheritanceModes);
   }
 
   private static List<Phenotype> processPhenotypes(
@@ -47,7 +29,7 @@ public class OmimLineMapper {
 
     for (String phenotypeString : phenotypes) {
       phenotypeString = phenotypeString.trim();
-      Pattern p = Pattern.compile("(.*),\\s(\\d*\\s\\(\\d*\\)),(.*)");
+      Pattern p = Pattern.compile(PATTERN);
       Matcher m = p.matcher(phenotypeString);
       if (m.matches()) {
         String phenotypeName = replaceIllegalChars(m.group(1));
@@ -70,7 +52,7 @@ public class OmimLineMapper {
   private static Set<InheritanceMode> mapInheritanceModes(String[] values) {
     EnumSet<InheritanceMode> modes = EnumSet.noneOf(InheritanceMode.class);
     for (String value : values) {
-      value = value.toUpperCase().trim();
+      value = preprocessValue(value);
       switch (value) {
         case "Y-LINKED":
           modes.add(InheritanceMode.YL);
@@ -81,9 +63,6 @@ public class OmimLineMapper {
         case "X-LINKED RECESSIVE":
           modes.add(InheritanceMode.XR);
           break;
-        case "?X-LINKED RECESSIVE":
-          modes.add(InheritanceMode.QXR);
-          break;
         case "X-LINKED":
           modes.add(InheritanceMode.XL);
           break;
@@ -92,9 +71,6 @@ public class OmimLineMapper {
           break;
         case "AUTOSOMAL DOMINANT":
           modes.add(InheritanceMode.AD);
-          break;
-        case "?AUTOSOMAL DOMINANT":
-          modes.add(InheritanceMode.Q_AD);
           break;
         case "PSEUDOAUTOSOMAL RECESSIVE":
           modes.add(InheritanceMode.PR);
@@ -134,5 +110,13 @@ public class OmimLineMapper {
       }
     }
     return modes;
+  }
+
+  private static String preprocessValue(String value) {
+    value = value.toUpperCase().trim();
+    if(value.startsWith("?")){
+      value = value.substring(1);
+    }
+    return value;
   }
 }

@@ -49,8 +49,8 @@ sub variant_feature_types {
 
 sub get_header_info {
     return {
-        InheritanceModesGene   => "List of inheritance modes for the gene",
-        InheritanceModesPheno   => "List of inheritance modes for the gene per phenotype"
+        InheritanceGene   => "List of inheritance modes for the gene",
+        InheritancePheno   => "List of inheritance modes for the gene per phenotype"
     };
 }
 sub new {
@@ -89,8 +89,8 @@ sub run {
     return {} unless $symbol;
 
     return {
-        InheritanceModesGene => $gene_data->{$symbol},
-        InheritanceModesPheno => $pheno_data->{$symbol}
+        InheritanceGene => $gene_data->{$symbol},
+        InheritancePheno => $pheno_data->{$symbol}
     };
 }
 
