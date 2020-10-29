@@ -56,12 +56,12 @@ public class GenemapConverter {
       List<CsvException> csvExceptions = csvToBean.getCapturedExceptions();
 
       csvExceptions.forEach(
-          csvException ->
-              LOGGER.error(
-                  csvException.getLine()[2],
-                  csvException.getLine()[3],
-                  csvException.getLineNumber(),
-                  csvException.getMessage()));
+          csvException -> {
+            //ignore errors parsing trailing comment lines
+            if (!(csvException.getLine()[0].startsWith("#"))) {
+              LOGGER.error(csvException.getMessage());
+            }
+          });
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -72,14 +72,17 @@ public class GenemapConverter {
       List<OmimLine> omimLines) {
     List<GeneInheritanceValue> geneInheritanceValues = new ArrayList<>();
     for (OmimLine omimLine : omimLines) {
-      EnumSet<InheritanceMode> inheritanceModes = getInheritanceModesList(omimLine.getPhenotypes());
-      for (String gene : omimLine.getGenes()) {
-        geneInheritanceValues.add(
-            GeneInheritanceValue.builder()
-                .phenotypes(omimLine.getPhenotypes())
-                .geneSymbol(gene.trim())
-                .inheritanceModes(inheritanceModes)
-                .build());
+      List<Phenotype> phenotypes = omimLine.getPhenotypes();
+      if (!phenotypes.isEmpty()) {
+        EnumSet<InheritanceMode> inheritanceModes = getInheritanceModesList(phenotypes);
+        for (String gene : omimLine.getGenes()) {
+          geneInheritanceValues.add(
+              GeneInheritanceValue.builder()
+                  .phenotypes(omimLine.getPhenotypes())
+                  .geneSymbol(gene.trim())
+                  .inheritanceModes(inheritanceModes)
+                  .build());
+        }
       }
     }
     return geneInheritanceValues;

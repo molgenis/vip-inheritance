@@ -23,7 +23,6 @@ public class OmimLine {
 
   @CsvCustomBindByName(
       column = "Phenotypes",
-      required = true,
       converter = TextToPhenotypeConverter.class)
   List<Phenotype> phenotypes;
 }

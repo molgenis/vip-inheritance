@@ -20,7 +20,7 @@ class AppIT {
     String inputFile = ResourceUtils.getFile("classpath:input_genemap.txt").toString();
     String outputFile = sharedTempDir.resolve("expected.tsv").toString();
 
-    String[] args = {"-i", inputFile, "-o", outputFile, "-f","-d"};
+    String[] args = {"-i", inputFile, "-o", outputFile, "-f"};
     SpringApplication.run(App.class, args);
 
     String actual = Files.readString(Path.of(outputFile));
