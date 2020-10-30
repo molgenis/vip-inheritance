@@ -21,7 +21,6 @@ use base qw(Bio::EnsEMBL::Variation::Utils::BaseVepPlugin);
  X-LINKED: XL
  AUTOSOMAL RECESSIVE: AR
  AUTOSOMAL DOMINANT: AD
- ?AUTOSOMAL DOMINANT: Q_AD
  PSEUDOAUTOSOMAL RECESSIVE: PR
  PSEUDOAUTOSOMAL DOMINANT: PD
  ISOLATED CASES: IC
@@ -85,7 +84,7 @@ sub run {
     my $gene_data = $self->{gene_data};
     my $pheno_data = $self->{pheno_data};
 
-    my $symbol = $tva->transcript->{_gene_symbol} || $tva->transcript->{_gene_hgnc};
+    my $symbol = $tva->transcript->{_gene}->stable_id;
     return {} unless $symbol;
 
     return {

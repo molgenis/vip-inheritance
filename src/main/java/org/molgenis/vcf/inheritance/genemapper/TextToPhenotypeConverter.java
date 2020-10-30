@@ -1,8 +1,8 @@
 package org.molgenis.vcf.inheritance.genemapper;
 
 import com.opencsv.bean.AbstractBeanField;
-import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -17,15 +17,15 @@ public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>,
   public static final String PATTERN = "(.*),\\s(\\d*\\s\\(\\d*\\)),(.*)";
 
   @Override
-  protected List<Phenotype> convert(String phenotypeValue){
+  protected Set<Phenotype> convert(String phenotypeValue){
     String[] phenotypes = phenotypeValue.split(SUBVALUE_SEPARATOR);
     EnumSet<InheritanceMode> inheritanceModes = EnumSet.noneOf(InheritanceMode.class);
     return processPhenotypes(phenotypes, inheritanceModes);
   }
 
-  private static List<Phenotype> processPhenotypes(
+  private static Set<Phenotype> processPhenotypes(
       String[] phenotypes, Set<InheritanceMode> inheritanceModes) {
-    List<Phenotype> phenotypeList = new ArrayList<>();
+    Set<Phenotype> phenotypeList = new HashSet<>();
 
     for (String phenotypeString : phenotypes) {
       phenotypeString = phenotypeString.trim();

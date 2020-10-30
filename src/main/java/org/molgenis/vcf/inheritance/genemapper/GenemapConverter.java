@@ -9,13 +9,17 @@ import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -57,9 +61,20 @@ public class GenemapConverter {
 
       csvExceptions.forEach(
           csvException -> {
-            //ignore errors parsing trailing comment lines
+            // ignore errors parsing trailing comment lines
             if (!(csvException.getLine()[0].startsWith("#"))) {
-              LOGGER.error(csvException.getMessage());
+              if (isMissingGeneException(csvException)) {
+                LOGGER.debug(
+                    String.format(
+                        "line:%s,%s,%s",
+                        csvException.getLineNumber(),
+                        csvException.getMessage(),
+                        Arrays.toString(csvException.getLine())));
+              } else {
+                LOGGER.error(
+                    String.format(
+                        "%s,%s", csvException.getLineNumber(), csvException.getMessage()));
+              }
             }
           });
     } catch (IOException e) {
@@ -68,28 +83,36 @@ public class GenemapConverter {
     return omimLines;
   }
 
-  private static List<GeneInheritanceValue> convertToGeneInheritanceValue(
-      List<OmimLine> omimLines) {
+  static boolean isMissingGeneException(CsvException csvException) {
+    boolean result = false;
+    if (csvException instanceof CsvRequiredFieldEmptyException) {
+      CsvRequiredFieldEmptyException csvRequiredFieldEmptyException =
+          ((CsvRequiredFieldEmptyException) csvException);
+      Field field = csvRequiredFieldEmptyException.getDestinationField();
+      result = (field != null && field.getName().equals("gene"));
+    }
+    return result;
+  }
+
+  static List<GeneInheritanceValue> convertToGeneInheritanceValue(List<OmimLine> omimLines) {
     List<GeneInheritanceValue> geneInheritanceValues = new ArrayList<>();
     for (OmimLine omimLine : omimLines) {
-      List<Phenotype> phenotypes = omimLine.getPhenotypes();
+      Set<Phenotype> phenotypes = omimLine.getPhenotypes();
       if (!phenotypes.isEmpty()) {
         EnumSet<InheritanceMode> inheritanceModes = getInheritanceModesList(phenotypes);
-        for (String gene : omimLine.getGenes()) {
-          geneInheritanceValues.add(
-              GeneInheritanceValue.builder()
-                  .phenotypes(omimLine.getPhenotypes())
-                  .geneSymbol(gene.trim())
-                  .inheritanceModes(inheritanceModes)
-                  .build());
-        }
+        geneInheritanceValues.add(
+            GeneInheritanceValue.builder()
+                .phenotypes(omimLine.getPhenotypes())
+                .geneSymbol(omimLine.getGene())
+                .inheritanceModes(inheritanceModes)
+                .build());
       }
     }
     return geneInheritanceValues;
   }
 
-  private static EnumSet<InheritanceMode> getInheritanceModesList(List<Phenotype> phenotypes) {
-    EnumSet inheritanceModusList = EnumSet.noneOf(InheritanceMode.class);
+  private static EnumSet<InheritanceMode> getInheritanceModesList(Set<Phenotype> phenotypes) {
+    EnumSet<InheritanceMode> inheritanceModusList = EnumSet.noneOf(InheritanceMode.class);
     for (Phenotype phenotype : phenotypes) {
       inheritanceModusList.addAll(phenotype.getInheritanceModes());
     }
@@ -120,17 +143,21 @@ public class GenemapConverter {
     };
   }
 
-  private static String phenotypeValuesToString(List<Phenotype> phenotypes) {
+  private static String phenotypeValuesToString(Set<Phenotype> phenotypes) {
     StringBuilder result = new StringBuilder();
-    for (Phenotype phenotype : phenotypes) {
-      if (result.length() != 0) {
-        result.append(VALUE_SEPARATOR);
-      }
-      result.append(
-          String.format(
-              "%s:%s",
-              phenotype.getName(), inheritanceModesToString(phenotype.getInheritanceModes())));
-    }
+    phenotypes.stream()
+        .sorted(Comparator.comparing(Phenotype::getName))
+        .forEach(
+            phenotype -> {
+              if (result.length() != 0) {
+                result.append(VALUE_SEPARATOR);
+              }
+              result.append(
+                  String.format(
+                      "%s:%s",
+                      phenotype.getName(),
+                      inheritanceModesToString(phenotype.getInheritanceModes())));
+            });
     return result.toString();
   }
 

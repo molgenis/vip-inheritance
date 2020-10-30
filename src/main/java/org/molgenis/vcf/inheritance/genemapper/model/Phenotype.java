@@ -7,7 +7,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class Phenotype {
+public class Phenotype{
   @NonNull String name;
   Set<InheritanceMode> inheritanceModes;
 }

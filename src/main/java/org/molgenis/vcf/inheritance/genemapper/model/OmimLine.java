@@ -1,8 +1,8 @@
 package org.molgenis.vcf.inheritance.genemapper.model;
 
-import com.opencsv.bean.CsvBindAndSplitByName;
+import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvCustomBindByName;
-import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,15 +14,13 @@ import org.molgenis.vcf.inheritance.genemapper.TextToPhenotypeConverter;
 @AllArgsConstructor
 @Builder
 public class OmimLine {
-  @CsvBindAndSplitByName(
-      column = "Gene Symbols",
-      required = true,
-      elementType = String.class,
-      splitOn = ",")
-  List<String> genes;
+  @CsvBindByName(
+      column = "Ensembl Gene ID",
+      required = true)
+  String gene;
 
   @CsvCustomBindByName(
       column = "Phenotypes",
       converter = TextToPhenotypeConverter.class)
-  List<Phenotype> phenotypes;
+  Set<Phenotype> phenotypes;
 }

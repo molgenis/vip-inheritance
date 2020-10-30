@@ -1,20 +1,12 @@
 package org.molgenis.vcf.inheritance.genemapper;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.molgenis.vcf.inheritance.genemapper.model.GeneInheritanceValue;
 import org.molgenis.vcf.inheritance.genemapper.model.Phenotype;
 
 class TextToPhenotypeConverterTest {
@@ -36,7 +28,7 @@ class TextToPhenotypeConverterTest {
             .name("Epilepsy__juvenile_myoclonic__susceptibility_to")
             .inheritanceModes(Set.of(AD))
             .build();
-    List<Phenotype> expected = Collections.singletonList(pheno);
+    Set<Phenotype> expected = Collections.singleton(pheno);
     assertEquals(expected, textToPhenotypeConverter.convert(input));
   }
 
@@ -48,20 +40,20 @@ class TextToPhenotypeConverterTest {
             .name("Epilepsy__juvenile_myoclonic__susceptibility_to")
             .inheritanceModes(Set.of(AD,AR,XD,XR,XL,YL,PD,PR,IC,DG,MF,SM,DGR,DGD,MT,SMM,ICI))
             .build();
-    List<Phenotype> expected = Collections.singletonList(pheno);
+    Set<Phenotype> expected = Collections.singleton(pheno);
     assertEquals(expected, textToPhenotypeConverter.convert(input));
   }
 
   @Test
   void parseOmimMultiGeneLine() {
     String input =
-        "Mental retardation, autosomal dominant 42, 123456 (3), Autosomal dominant";
+        "Mental retardation, autosomal dominant 42, 123456 (3), Autosomal recessive";
     Phenotype pheno =
         Phenotype.builder()
             .name("Mental_retardation__autosomal_dominant_42")
-            .inheritanceModes(Set.of(AD))
+            .inheritanceModes(Set.of(AR))
             .build();
-    List<Phenotype> expected = Collections.singletonList(pheno);
+    Set<Phenotype> expected = Collections.singleton(pheno);
     assertEquals(expected, textToPhenotypeConverter.convert(input));
   }
 
@@ -80,7 +72,7 @@ class TextToPhenotypeConverterTest {
             .name("Leukemia__acute_lymphoblastic__somatic")
             .inheritanceModes(Set.of(SM))
             .build();
-    List<Phenotype> expected = Arrays.asList(pheno1, pheno2);
+    Set<Phenotype> expected = Set.of(pheno1, pheno2);
     assertEquals(expected, textToPhenotypeConverter.convert(input));
   }
 
@@ -95,7 +87,7 @@ class TextToPhenotypeConverterTest {
             .name("Mental_retardation__autosomal_dominant_42")
             .inheritanceModes(Set.of(AD))
             .build();
-    List<Phenotype> expected = Collections.singletonList(pheno);
+    Set<Phenotype> expected = Collections.singleton(pheno);
 
     assertEquals(expected, textToPhenotypeConverter.convert(input));
   }
@@ -103,13 +95,13 @@ class TextToPhenotypeConverterTest {
   @Test
   void parseOmimBracketPhenoLine() {
     String input =
-        "{Epilepsy, generalized, with febrile seizures plus, type 5, susceptibility to}, 123456 (3), Autosomal dominant";
+        "{Epilepsy, generalized, with febrile seizures plus, type 5, susceptibility to}, 123456 (3), X-Linked";
     Phenotype pheno =
         Phenotype.builder()
             .name("{Epilepsy__generalized__with_febrile_seizures_plus__type_5__susceptibility_to}")
-            .inheritanceModes(Set.of(AD))
+            .inheritanceModes(Set.of(XL))
             .build();
-    List<Phenotype> expected = Collections.singletonList(pheno);
+    Set<Phenotype> expected = Collections.singleton(pheno);
     assertEquals(expected, textToPhenotypeConverter.convert(input));
   }
 }
