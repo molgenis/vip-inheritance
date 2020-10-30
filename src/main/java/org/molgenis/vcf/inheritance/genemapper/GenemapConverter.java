@@ -57,33 +57,35 @@ public class GenemapConverter {
               .withThrowExceptions(false)
               .build();
       omimLines = csvToBean.parse();
-      List<CsvException> csvExceptions = csvToBean.getCapturedExceptions();
-
-      csvExceptions.forEach(
-          csvException -> {
-            // ignore errors parsing trailing comment lines
-            if (!(csvException.getLine()[0].startsWith("#"))) {
-              if (isMissingGeneException(csvException)) {
-                LOGGER.debug(
-                    String.format(
-                        "line:%s,%s,%s",
-                        csvException.getLineNumber(),
-                        csvException.getMessage(),
-                        Arrays.toString(csvException.getLine())));
-              } else {
-                LOGGER.error(
-                    String.format(
-                        "%s,%s", csvException.getLineNumber(), csvException.getMessage()));
-              }
-            }
-          });
+      handleCsvParseExceptions(csvToBean.getCapturedExceptions());
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
     return omimLines;
   }
 
-  static boolean isMissingGeneException(CsvException csvException) {
+  static void handleCsvParseExceptions(List<CsvException> exceptions) {
+    exceptions.forEach(
+        csvException -> {
+          // ignore errors parsing trailing comment lines
+          if (!(csvException.getLine()[0].startsWith("#"))) {
+            if (isMissingGeneException(csvException)) {
+              LOGGER.debug(
+                  String.format(
+                      "line:%s,%s,%s",
+                      csvException.getLineNumber(),
+                      csvException.getMessage(),
+                      Arrays.toString(csvException.getLine())));
+            } else {
+              LOGGER.error(
+                  String.format(
+                      "%s,%s", csvException.getLineNumber(), csvException.getMessage()));
+            }
+          }
+        });
+  }
+
+  private static boolean isMissingGeneException(CsvException csvException) {
     boolean result = false;
     if (csvException instanceof CsvRequiredFieldEmptyException) {
       CsvRequiredFieldEmptyException csvRequiredFieldEmptyException =
