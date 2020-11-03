@@ -28,7 +28,7 @@
 
   <scm>
     <connection>scm:git:git://github.com/molgenis/vip-inheritance.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/molgenis/vip-dinheritance.git</developerConnection>
+    <developerConnection>scm:git:ssh://git@github.com/molgenis/vip-inheritance.git</developerConnection>
     <url>https://github.com/molgenis/vip-inheritance</url>
   </scm>
 
