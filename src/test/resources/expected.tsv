@@ -1,0 +1,3 @@
+test1	AD	Mental_retardation__autosomal_dominant_42:AD
+test3	AD,SM	{Epilepsy__generalized__with_febrile_seizures_plus__type_5__susceptibility_to}:AD,{Epilepsy__idiopathic_generalized__10}:AD,{Epilepsy__juvenile_myoclonic__susceptibility_to}:AD,SM
+test4	AR	?Usher_syndrome__type_1M:AR,Deafness__autosomal_recessive_36:AR,Deafness__neurosensory__without_vestibular_involvement__autosomal_dominant:AR
