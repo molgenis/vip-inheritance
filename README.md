@@ -4,8 +4,7 @@ A tool to converts the omim 'genemap2.txt' to a tab separated file that can be u
 It creates a line for all gene symbols in the input file.
 ###Usage
 ```
-usage: java -jar genemap-mapper.jar -i <arg> -c <arg> [-o <arg>] [-f]
-       [-l] [-p] [-d]
+usage: java -jar genemap-mapper.jar -i <arg> [-o <arg>] [-f] [-d]
  -i,--input <arg>    Input genemap2.txt location.
  -o,--output <arg>   Output TSV file
  -f,--force          Override the output file if it already exists.
