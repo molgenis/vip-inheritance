@@ -1,0 +1,24 @@
+#description: HPO annotations for rare diseases [7860: OMIM; 47: DECIPHER; 3991 ORPHANET]
+#date: 2020-10-13
+#tracker: https://github.com/obophenotype/human-phenotype-ontology
+#HPO-version: http://purl.obolibrary.org/obo/hp.obo/hp/releases/2020-10-12/hp.obo.owl
+#DatabaseID	DiseaseName	Qualifier	HPO_ID	Reference	Evidence	Onset	Frequency	Sex	Modifier	Aspect	Biocuration
+OMIM:123456	test1		HP:9910913	PMID:1	PCS		1/1			P	HPO:jfictief[2020-07-23];HPO:jfictief[2020-07-23]
+OMIM:123456	test1		HP:9900007	PMID:1	PCS					I	HPO:jfictief[2020-07-23];HPO:jfictief[2020-07-23]
+OMIM:123456	test1		HP:9902922	PMID:1	PCS		1/1			P	HPO:jfictief[2020-07-23];HPO:jfictief[2020-07-23]
+OMIM:123456	test1		HP:9931993	PMID:1	PCS		1/1			P	HPO:jfictief[2020-07-23];HPO:jfictief[2020-07-23]
+OMIM:123456	test1		HP:9902315	PMID:1	PCS		1/1			P	HPO:jfictief[2020-07-23];HPO:jfictief[2020-07-23]
+OMIM:123456	test1		HP:9910911	PMID:1	PCS		1/1			P	HPO:jfictief[2020-07-23];HPO:jfictief[2020-07-23]
+OMIM:123456	test1		HP:9910910	PMID:1	PCS		1/1			P	HPO:jfictief[2020-07-23];HPO:jfictief[2020-07-23]
+OMIM:123456	test1		HP:9931964	PMID:1	PCS		1/1			P	HPO:jfictief[2020-07-23];HPO:jfictief[2020-07-23]
+OMIM:123456	test1		HP:9901348	PMID:1	PCS		1/1			P	HPO:jfictief[2020-07-23];HPO:jfictief[2020-07-23]
+OMIM:123457	test2		HP:9932480	PMID:2	PCS					P	HPO:jfictief[2020-09-06]
+OMIM:123457	test2		HP:9900007	PMID:2	PCS					I	HPO:iea[2009-02-17];HPO:jfictief[2020-09-06]
+ORPHA:123456	test3		HP:9903186	OMIM:2	IEA					P	HPO:iea[2009-02-17]
+ORPHA:123456	test3		HP:9900006	OMIM:2	IEA					I	HPO:iea[2009-02-17]
+OMIM:123459	test4 CDCBM5		HP:9902521	OMIM:3	TAS		HP:9940283			P	HPO:ggeit[2014-08-24]
+OMIM:123459	test4 CDCBM5		HP:9902365	OMIM:3	TAS		HP:9940283			P	HPO:ggeit[2014-08-24]
+OMIM:123459	test4 CDCBM5		HP:9902079	OMIM:3	TAS					P	HPO:ggeit[2014-08-24]
+OMIM:123459	test4 CDCBM5		HP:9901250	OMIM:3	TAS					P	HPO:ggeit[2014-08-24]
+OMIM:123459	test4 CDCBM5		HP:9901263	OMIM:3	TAS				HP:9912828	P	HPO:ggeit[2014-08-24]
+OMIM:123459	test4 CDCBM5		HP:9901252	OMIM:3	TAS					P	HPO:ggeit[2014-11-26]

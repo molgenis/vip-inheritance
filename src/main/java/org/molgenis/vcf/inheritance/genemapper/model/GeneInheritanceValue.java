@@ -9,6 +9,6 @@ import lombok.Value;
 @Builder
 public class GeneInheritanceValue {
   @NonNull String geneSymbol;
-  Set<Phenotype> phenotypes;
+  Set<HpoInheritanceMode> hpoInheritanceModes;
   Set<InheritanceMode> inheritanceModes;
 }

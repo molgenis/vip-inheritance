@@ -12,6 +12,8 @@ class AppCommandLineOptions {
 
   static final String OPT_INPUT = "i";
   static final String OPT_INPUT_LONG = "input";
+  static final String OPT_HPO_INPUT = "h";
+  static final String OPT_HPO_INPUT_LONG = "hpo";
   static final String OPT_OUTPUT = "o";
   static final String OPT_OUTPUT_LONG = "output";
   static final String OPT_FORCE = "f";
@@ -32,6 +34,13 @@ class AppCommandLineOptions {
             .longOpt(OPT_INPUT_LONG)
             .desc("Input OMIM genemap2 file.")
             .build());
+    appOptions.addOption(
+        Option.builder(OPT_HPO_INPUT)
+        .hasArg(true)
+        .required()
+        .longOpt(OPT_HPO_INPUT_LONG)
+        .desc("Input HPO .hpoa file.")
+        .build());
     appOptions.addOption(
         Option.builder(OPT_OUTPUT)
             .hasArg(true)
@@ -71,6 +80,7 @@ class AppCommandLineOptions {
 
   static void validateCommandLine(CommandLine commandLine) {
     validateInput(commandLine);
+    validateHpo(commandLine);
     validateOutput(commandLine);
   }
 
@@ -92,6 +102,27 @@ class AppCommandLineOptions {
     if (!inputPathStr.endsWith(".txt")) {
       throw new IllegalArgumentException(
           format("Input file '%s' is not a .txt file.", inputPathStr));
+    }
+  }
+
+  private static void validateHpo(CommandLine commandLine) {
+    Path inputPath = Path.of(commandLine.getOptionValue(OPT_HPO_INPUT));
+    if (!Files.exists(inputPath)) {
+      throw new IllegalArgumentException(
+          format("Input HPO file '%s' does not exist.", inputPath.toString()));
+    }
+    if (Files.isDirectory(inputPath)) {
+      throw new IllegalArgumentException(
+          format("Input HPO file '%s' is a directory.", inputPath.toString()));
+    }
+    if (!Files.isReadable(inputPath)) {
+      throw new IllegalArgumentException(
+          format("Input HPO file '%s' is not readable.", inputPath.toString()));
+    }
+    String inputPathStr = inputPath.toString();
+    if (!inputPathStr.endsWith(".hpoa")) {
+      throw new IllegalArgumentException(
+          format("Input HPO file '%s' is not a .hpoa file.", inputPathStr));
     }
   }
 
