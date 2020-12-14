@@ -60,7 +60,7 @@ class AppCommandLineRunner implements CommandLineRunner {
     AppCommandLineOptions.validateCommandLine(commandLine);
 
     try {
-      GenemapConverter.run(Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT)),getOutput(commandLine));
+      GenemapConverter.run(Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT)),Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_HPO_INPUT)),getOutput(commandLine));
     } catch (Exception e) {
       LOGGER.error(e.getLocalizedMessage(), e);
       System.exit(STATUS_MISC_ERROR);
