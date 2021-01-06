@@ -175,8 +175,7 @@ public class GenemapConverter {
       }
     }
     for (CgdLine cgdLine : cgdLines) {
-      Set<InheritanceMode> inheritanceModes =
-          Collections.singleton(mapCgdInheritanceMode(cgdLine.getInheritance()));
+      Set<InheritanceMode> inheritanceModes = mapCgdInheritanceMode(cgdLine.getInheritance());
       GeneInheritanceValue inheritance =
           GeneInheritanceValue.builder()
               .hpoInheritanceModes(Collections.emptySet())
