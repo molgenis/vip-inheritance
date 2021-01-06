@@ -28,8 +28,7 @@ class AppCommandLineRunner implements CommandLineRunner {
   private final CommandLineParser commandLineParser;
 
   AppCommandLineRunner(
-      @Value("${app.name}") String appName,
-      @Value("${app.version}") String appVersion) {
+      @Value("${app.name}") String appName, @Value("${app.version}") String appVersion) {
     this.appName = requireNonNull(appName);
     this.appVersion = requireNonNull(appVersion);
 
@@ -40,13 +39,14 @@ class AppCommandLineRunner implements CommandLineRunner {
   public void run(String... args) {
     if (args.length == 1
         && (args[0].equals("-" + AppCommandLineOptions.OPT_VERSION)
-        || args[0].equals("--" + AppCommandLineOptions.OPT_VERSION_LONG))) {
+            || args[0].equals("--" + AppCommandLineOptions.OPT_VERSION_LONG))) {
       LOGGER.info("{} {}", appName, appVersion);
       return;
     }
 
     for (String arg : args) {
-      if (arg.equals('-' + AppCommandLineOptions.OPT_DEBUG) || arg.equals('-' + AppCommandLineOptions.OPT_DEBUG_LONG)) {
+      if (arg.equals('-' + AppCommandLineOptions.OPT_DEBUG)
+          || arg.equals('-' + AppCommandLineOptions.OPT_DEBUG_LONG)) {
         Logger rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         if (!(rootLogger instanceof ch.qos.logback.classic.Logger)) {
           throw new ClassCastException("Expected root logger to be a logback logger");
@@ -60,7 +60,15 @@ class AppCommandLineRunner implements CommandLineRunner {
     AppCommandLineOptions.validateCommandLine(commandLine);
 
     try {
-      GenemapConverter.run(Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT)),getOutput(commandLine));
+      Path omimPath = null;
+      Path cgdPath = null;
+      if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_OMIM)) {
+        omimPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT_OMIM));
+      }
+      if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_CGD)) {
+        cgdPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT_CGD));
+      }
+      GenemapConverter.run(omimPath, cgdPath, getOutput(commandLine));
     } catch (Exception e) {
       LOGGER.error(e.getLocalizedMessage(), e);
       System.exit(STATUS_MISC_ERROR);
@@ -83,11 +91,21 @@ class AppCommandLineRunner implements CommandLineRunner {
     if (commandLine.hasOption(AppCommandLineOptions.OPT_OUTPUT)) {
       outputPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_OUTPUT));
     } else {
-      outputPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT).replace(".txt","out.tsv"));
+      String output;
+      if(commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_OMIM)){
+        output = commandLine
+            .getOptionValue(AppCommandLineOptions.OPT_INPUT_OMIM)
+            .replace(".txt", "out.tsv");
+      }else{
+        output = commandLine
+            .getOptionValue(AppCommandLineOptions.OPT_INPUT_CGD)
+            .replace(".txt.gz", "out.tsv");
+      }
+      outputPath =
+          Path.of(output);
     }
     return outputPath;
   }
-
 
   @SuppressWarnings("java:S106")
   private void logException(ParseException e) {

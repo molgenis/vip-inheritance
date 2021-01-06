@@ -17,10 +17,11 @@ class AppIT {
 
   @Test
   void test() throws IOException {
-    String inputFile = ResourceUtils.getFile("classpath:input_genemap.txt").toString();
+    String omimFile = ResourceUtils.getFile("classpath:input_genemap.txt").toString();
+    String cgdFile = ResourceUtils.getFile("classpath:input_cgd.txt.gz").toString();
     String outputFile = sharedTempDir.resolve("expected.tsv").toString();
 
-    String[] args = {"-i", inputFile, "-o", outputFile, "-f"};
+    String[] args = {"-i", omimFile, "-c", cgdFile, "-o", outputFile, "-f"};
     SpringApplication.run(App.class, args);
 
     String actual = Files.readString(Path.of(outputFile));

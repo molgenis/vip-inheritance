@@ -1,28 +1,38 @@
 package org.molgenis.vcf.inheritance.genemapper;
 
-import static com.opencsv.ICSVWriter.DEFAULT_QUOTE_CHARACTER;
 import static com.opencsv.ICSVWriter.DEFAULT_ESCAPE_CHARACTER;
 import static com.opencsv.ICSVWriter.DEFAULT_LINE_END;
+import static com.opencsv.ICSVWriter.DEFAULT_QUOTE_CHARACTER;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.molgenis.vcf.inheritance.genemapper.CgdMapper.mapCgdInheritanceMode;
 
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import org.molgenis.vcf.inheritance.genemapper.model.CGDLine;
 import org.molgenis.vcf.inheritance.genemapper.model.GeneInheritanceValue;
 import org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode;
 import org.molgenis.vcf.inheritance.genemapper.model.OmimLine;
@@ -39,16 +49,42 @@ public class GenemapConverter {
   public static final String COMMENT_PREFIX = "#";
   public static final String VALUE_SEPARATOR = ",";
 
-  public static void run(Path input, Path output) {
-    List<OmimLine> omimLines = readOmimFile(input);
-    List<GeneInheritanceValue> geneInheritanceValues = convertToGeneInheritanceValue(omimLines);
+  public static void run(Path inputOmim, Path inputCgd, Path output) {
+    List<OmimLine> omimLines = Collections.emptyList();
+    List<CGDLine> cgdLines = Collections.emptyList();
+    if (inputOmim != null) {
+      omimLines = readOmimFile(inputOmim);
+    }
+    if (inputCgd != null) {
+      cgdLines = readCgdFile(inputCgd);
+    }
+    Collection<GeneInheritanceValue> geneInheritanceValues =
+        convertToGeneInheritanceValue(omimLines, cgdLines);
     writeToFile(output, geneInheritanceValues);
+  }
+
+  private static List<CGDLine> readCgdFile(Path inputCgd) {
+    List<CGDLine> cgdLines;
+    try (InputStream fileStream = new FileInputStream(inputCgd.toFile());
+        InputStream gzipStream = new GZIPInputStream(fileStream);
+        Reader reader = new BufferedReader(new InputStreamReader(gzipStream))) {
+      CsvToBean<CGDLine> csvToBean =
+          new CsvToBeanBuilder<CGDLine>(reader)
+              .withSeparator('\t')
+              .withType(CGDLine.class)
+              .withThrowExceptions(false)
+              .build();
+      cgdLines = csvToBean.parse();
+      handleCsvParseExceptions(csvToBean.getCapturedExceptions());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    return cgdLines;
   }
 
   private static List<OmimLine> readOmimFile(Path input) {
     List<OmimLine> omimLines;
     try (Reader reader = Files.newBufferedReader(input, UTF_8)) {
-
       CsvToBean<OmimLine> csvToBean =
           new CsvToBeanBuilder<OmimLine>(reader)
               .withSkipLines(3)
@@ -78,8 +114,7 @@ public class GenemapConverter {
                       Arrays.toString(csvException.getLine())));
             } else {
               LOGGER.error(
-                  String.format(
-                      "%s,%s", csvException.getLineNumber(), csvException.getMessage()));
+                  String.format("%s,%s", csvException.getLineNumber(), csvException.getMessage()));
             }
           }
         });
@@ -96,13 +131,15 @@ public class GenemapConverter {
     return result;
   }
 
-  static List<GeneInheritanceValue> convertToGeneInheritanceValue(List<OmimLine> omimLines) {
-    List<GeneInheritanceValue> geneInheritanceValues = new ArrayList<>();
+  static Collection<GeneInheritanceValue> convertToGeneInheritanceValue(
+      List<OmimLine> omimLines, List<CGDLine> cgdLines) {
+    Map<String, GeneInheritanceValue> geneInheritanceValues = new HashMap<>();
     for (OmimLine omimLine : omimLines) {
       Set<Phenotype> phenotypes = omimLine.getPhenotypes();
       if (!phenotypes.isEmpty()) {
         EnumSet<InheritanceMode> inheritanceModes = getInheritanceModesList(phenotypes);
-        geneInheritanceValues.add(
+        geneInheritanceValues.put(
+            omimLine.getGene(),
             GeneInheritanceValue.builder()
                 .phenotypes(omimLine.getPhenotypes())
                 .geneSymbol(omimLine.getGene())
@@ -110,18 +147,41 @@ public class GenemapConverter {
                 .build());
       }
     }
-    return geneInheritanceValues;
+    for (CGDLine cgdLine : cgdLines) {
+      Set<InheritanceMode> inheritanceModes = mapCgdInheritance(cgdLine.getInheritance());
+      GeneInheritanceValue inheritance =
+          GeneInheritanceValue.builder()
+              .phenotypes(Collections.emptySet())
+              .geneSymbol(cgdLine.getGene())
+              .inheritanceModes(inheritanceModes)
+              .build();
+      geneInheritanceValues.putIfAbsent(cgdLine.getGene(), inheritance);
+    }
+    return geneInheritanceValues.values();
   }
 
-  private static EnumSet<InheritanceMode> getInheritanceModesList(Set<Phenotype> phenotypes) {
+  private static Set<InheritanceMode> mapCgdInheritance(String inheritance) {
     EnumSet<InheritanceMode> inheritanceModusList = EnumSet.noneOf(InheritanceMode.class);
-    for (Phenotype phenotype : phenotypes) {
-      inheritanceModusList.addAll(phenotype.getInheritanceModes());
+    String[] modes = inheritance.split("/");
+    for (String mode : modes) {
+      InheritanceMode inheritanceMode = mapCgdInheritanceMode(mode);
+      if (inheritanceMode != null) {
+        inheritanceModusList.add(inheritanceMode);
+      }
     }
     return inheritanceModusList;
   }
 
-  private static void writeToFile(Path output, List<GeneInheritanceValue> geneInheritanceValues) {
+  private static EnumSet<InheritanceMode> getInheritanceModesList(Set<Phenotype> additionalInfos) {
+    EnumSet<InheritanceMode> inheritanceModusList = EnumSet.noneOf(InheritanceMode.class);
+    for (Phenotype additionalInfo : additionalInfos) {
+      inheritanceModusList.addAll(additionalInfo.getInheritanceModes());
+    }
+    return inheritanceModusList;
+  }
+
+  private static void writeToFile(
+      Path output, Collection<GeneInheritanceValue> geneInheritanceValues) {
     try (CSVWriter writer =
         new CSVWriter(
             new FileWriter(output.toString()),
@@ -129,9 +189,11 @@ public class GenemapConverter {
             DEFAULT_QUOTE_CHARACTER,
             DEFAULT_ESCAPE_CHARACTER,
             DEFAULT_LINE_END)) {
-      for (GeneInheritanceValue geneInheritanceValue : geneInheritanceValues) {
-        writer.writeNext(geneInheritanceValueToString(geneInheritanceValue), false);
-      }
+      geneInheritanceValues.stream()
+          .filter(geneInheritanceValue -> !geneInheritanceValue.getInheritanceModes().isEmpty())
+          .forEach(
+              geneInheritanceValue ->
+                  writer.writeNext(geneInheritanceValueToString(geneInheritanceValue), false));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

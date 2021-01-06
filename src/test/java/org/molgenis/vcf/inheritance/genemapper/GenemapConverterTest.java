@@ -1,23 +1,27 @@
 package org.molgenis.vcf.inheritance.genemapper;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.AD;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.AR;
-import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.DG;
-import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.SM;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.XD;
+import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.XL;
 
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.molgenis.vcf.inheritance.genemapper.model.CGDLine;
 import org.molgenis.vcf.inheritance.genemapper.model.GeneInheritanceValue;
 import org.molgenis.vcf.inheritance.genemapper.model.OmimLine;
 import org.molgenis.vcf.inheritance.genemapper.model.Phenotype;
@@ -64,31 +68,39 @@ class GenemapConverterTest {
 
   @Test
   void convertToGeneInheritanceValue() {
-    Phenotype phenotype1 =
-        Phenotype.builder().name("Blindness").inheritanceModes(Set.of(XD, DG, SM)).build();
-    Phenotype phenotype2 =
+    Phenotype Phenotype1 =
+        Phenotype.builder().name("Blindness").inheritanceModes(Set.of(XD)).build();
+    Phenotype Phenotype2 =
         Phenotype.builder().name("Deafness").inheritanceModes(Set.of(AR, XD)).build();
-    Phenotype phenotype3 =
+    Phenotype Phenotype3 =
         Phenotype.builder().name("Madness").inheritanceModes(Set.of(AR, AD)).build();
     OmimLine line1 =
-        OmimLine.builder().gene("ENS1234567").phenotypes(Set.of(phenotype1, phenotype2)).build();
-    OmimLine line2 = OmimLine.builder().gene("ENS1234568").phenotypes(Set.of(phenotype3)).build();
-
-    List<GeneInheritanceValue> expected = new ArrayList<>();
+        OmimLine.builder().gene("ENS1234567").phenotypes(Set.of(Phenotype1,
+            Phenotype2)).build();
+    OmimLine line2 = OmimLine.builder().gene("ENS1234568").phenotypes(Set.of(Phenotype3)).build();
+    CGDLine cgdLine = CGDLine.builder().gene("ENS1234569").inheritance("XL").build();
+    Set<GeneInheritanceValue> expected = new HashSet<>();
     expected.add(
         GeneInheritanceValue.builder()
-            .phenotypes(Set.of(phenotype1, phenotype2))
+            .phenotypes(Set.of(Phenotype1, Phenotype2))
             .geneSymbol("ENS1234567")
-            .inheritanceModes(Set.of(XD, DG, SM, AR))
+            .inheritanceModes(Set.of(XD, AR))
             .build());
     expected.add(
         GeneInheritanceValue.builder()
-            .phenotypes(Set.of(phenotype3))
+            .phenotypes(Set.of(Phenotype3))
             .geneSymbol("ENS1234568")
             .inheritanceModes(Set.of(AR, AD))
             .build());
+    expected.add(
+        GeneInheritanceValue.builder()
+            .phenotypes(emptySet())
+            .geneSymbol("ENS1234569")
+            .inheritanceModes(Set.of(XL))
+            .build());
 
     assertEquals(
-        expected, GenemapConverter.convertToGeneInheritanceValue(Arrays.asList(line1, line2)));
+        expected, new HashSet<>(GenemapConverter.convertToGeneInheritanceValue(asList(line1, line2),
+            Collections.singletonList(cgdLine))));
   }
 }

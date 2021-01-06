@@ -9,8 +9,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode;
 import org.molgenis.vcf.inheritance.genemapper.model.Phenotype;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>, Object> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TextToPhenotypeConverter.class);
 
   public static final String SUBVALUE_SEPARATOR = ";";
   public static final int COMMENTS_INDEX = 12;
@@ -54,9 +58,6 @@ public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>,
     for (String value : values) {
       value = preprocessValue(value);
       switch (value) {
-        case "Y-LINKED":
-          modes.add(InheritanceMode.YL);
-          break;
         case "X-LINKED DOMINANT":
           modes.add(InheritanceMode.XD);
           break;
@@ -72,41 +73,8 @@ public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>,
         case "AUTOSOMAL DOMINANT":
           modes.add(InheritanceMode.AD);
           break;
-        case "PSEUDOAUTOSOMAL RECESSIVE":
-          modes.add(InheritanceMode.PR);
-          break;
-        case "PSEUDOAUTOSOMAL DOMINANT":
-          modes.add(InheritanceMode.PD);
-          break;
-        case "ISOLATED CASES":
-          modes.add(InheritanceMode.IC);
-          break;
-        case "DIGENIC":
-          modes.add(InheritanceMode.DG);
-          break;
-        case "DIGENIC RECESSIVE":
-          modes.add(InheritanceMode.DGR);
-          break;
-        case "DIGENIC DOMINANT":
-          modes.add(InheritanceMode.DGD);
-          break;
-        case "MITOCHONDRIAL":
-          modes.add(InheritanceMode.MT);
-          break;
-        case "MULTIFACTORIAL":
-          modes.add(InheritanceMode.MF);
-          break;
-        case "SOMATIC MUTATION":
-          modes.add(InheritanceMode.SM);
-          break;
-        case "SOMATIC MOSAICISM":
-          modes.add(InheritanceMode.SMM);
-          break;
-        case "INHERITED CHROMOSOMAL IMBALANCE":
-          modes.add(InheritanceMode.ICI);
-          break;
         default:
-          throw new IllegalStateException(value);
+          LOGGER.debug("Unsupported OMIM inheritance value: '{}'", value);
       }
     }
     return modes;
