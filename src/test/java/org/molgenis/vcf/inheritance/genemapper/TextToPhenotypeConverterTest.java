@@ -38,7 +38,7 @@ class TextToPhenotypeConverterTest {
     Phenotype pheno =
         Phenotype.builder()
             .omimId("123458")
-            .inheritanceModes(Set.of(AD,AR,XD,XR,XL,YL,PD,PR,IC,DG,MF,SM,DGR,DGD,MT,SMM,ICI))
+            .inheritanceModes(Set.of(AD,AR,XD,XR,XL))
             .build();
     Set<Phenotype> expected = Collections.singleton(pheno);
     assertEquals(expected, textToPhenotypeConverter.convert(input));

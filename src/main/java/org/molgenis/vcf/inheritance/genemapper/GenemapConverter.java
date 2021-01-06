@@ -29,12 +29,11 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
-import org.molgenis.vcf.inheritance.genemapper.model.CGDLine;
+import org.molgenis.vcf.inheritance.genemapper.model.CgdLine;
 import org.molgenis.vcf.inheritance.genemapper.model.GeneInheritanceValue;
 import org.molgenis.vcf.inheritance.genemapper.model.HpoInheritanceMode;
 import org.molgenis.vcf.inheritance.genemapper.model.HpoLine;
@@ -54,7 +53,8 @@ public class GenemapConverter {
   public static final String VALUE_SEPARATOR = ",";
 
   public static void run(Path inputOmim, Path inputCgd, Path inputHpo, Path output) {
-    List<CGDLine> cgdLines = Collections.emptyList();
+    List<OmimLine> omimLines = Collections.emptyList();
+    List<CgdLine> cgdLines = Collections.emptyList();
     if (inputOmim != null) {
       omimLines = readOmimFile(inputOmim);
     }
@@ -64,19 +64,19 @@ public class GenemapConverter {
     List<HpoLine> hpoLines = readHpoFile(inputHpo);
     Map<String, Set<String>> omimHpoMapping = convertHpoLines(hpoLines);
     Collection<GeneInheritanceValue> geneInheritanceValues =
-        convertToGeneInheritanceValue(omimLines, omimHpoMapping);
+        convertToGeneInheritanceValue(omimLines, cgdLines, omimHpoMapping);
     writeToFile(output, geneInheritanceValues);
   }
 
-  private static List<CGDLine> readCgdFile(Path inputCgd) {
-    List<CGDLine> cgdLines;
+  private static List<CgdLine> readCgdFile(Path inputCgd) {
+    List<CgdLine> cgdLines;
     try (InputStream fileStream = new FileInputStream(inputCgd.toFile());
         InputStream gzipStream = new GZIPInputStream(fileStream);
         Reader reader = new BufferedReader(new InputStreamReader(gzipStream))) {
-      CsvToBean<CGDLine> csvToBean =
-          new CsvToBeanBuilder<CGDLine>(reader)
+      CsvToBean<CgdLine> csvToBean =
+          new CsvToBeanBuilder<CgdLine>(reader)
               .withSeparator('\t')
-              .withType(CGDLine.class)
+              .withType(CgdLine.class)
               .withThrowExceptions(false)
               .build();
       cgdLines = csvToBean.parse();
@@ -155,16 +155,17 @@ public class GenemapConverter {
     return result;
   }
 
-  static List<GeneInheritanceValue> convertToGeneInheritanceValue(
-      List<OmimLine> omimLines, Map<String, Set<String>> omimHpoMapping) {
-    List<GeneInheritanceValue> geneInheritanceValues = new ArrayList<>();
+  static Collection<GeneInheritanceValue> convertToGeneInheritanceValue(
+      List<OmimLine> omimLines, List<CgdLine> cgdLines, Map<String, Set<String>> omimHpoMapping) {
+    Map<String, GeneInheritanceValue> geneInheritanceValues = new HashMap<>();
     for (OmimLine omimLine : omimLines) {
       Set<HpoInheritanceMode> hpoInheritanceModes =
           convertoToHpoBasedInheritance(omimLine.getPhenotypes(), omimHpoMapping);
       if (!omimLine.getPhenotypes().isEmpty()) {
         EnumSet<InheritanceMode> inheritanceModes =
             getInheritanceModesList(omimLine.getPhenotypes());
-        geneInheritanceValues.add(
+        geneInheritanceValues.put(
+            omimLine.getGene(),
             GeneInheritanceValue.builder()
                 .hpoInheritanceModes(hpoInheritanceModes)
                 .geneSymbol(omimLine.getGene())
@@ -172,36 +173,18 @@ public class GenemapConverter {
                 .build());
       }
     }
-    for (CGDLine cgdLine : cgdLines) {
-      Set<InheritanceMode> inheritanceModes = mapCgdInheritance(cgdLine.getInheritance());
+    for (CgdLine cgdLine : cgdLines) {
+      Set<InheritanceMode> inheritanceModes =
+          Collections.singleton(mapCgdInheritanceMode(cgdLine.getInheritance()));
       GeneInheritanceValue inheritance =
           GeneInheritanceValue.builder()
-              .phenotypes(Collections.emptySet())
+              .hpoInheritanceModes(Collections.emptySet())
               .geneSymbol(cgdLine.getGene())
               .inheritanceModes(inheritanceModes)
               .build();
       geneInheritanceValues.putIfAbsent(cgdLine.getGene(), inheritance);
     }
     return geneInheritanceValues.values();
-  }
-
-  private static Map<String, Set<String>> convertHpoLines(List<HpoLine> hpoLines) {
-    Map<String, Set<String>> mapping = new HashMap<>();
-    hpoLines.stream()
-        .filter(line -> line.getDatabaseId().startsWith("OMIM:"))
-        .forEach(
-            line -> {
-              String omimId = line.getDatabaseId().replace("OMIM:", "");
-              Set<String> hpoIds;
-              if (mapping.containsKey(omimId)) {
-                hpoIds = mapping.get(omimId);
-              } else {
-                hpoIds = new HashSet<>();
-              }
-              hpoIds.add(line.getHpoId().replace(":", "_"));
-              mapping.put(omimId, hpoIds);
-            });
-    return mapping;
   }
 
   private static Map<String, Set<String>> convertHpoLines(List<HpoLine> hpoLines) {
@@ -231,17 +214,15 @@ public class GenemapConverter {
         .filter(phenotype -> !phenotype.getInheritanceModes().isEmpty())
         .forEach(
             phenotype ->
-              omimHpoMapping
-                  .get(phenotype.getOmimId())
-                  .forEach(
-                      hpo ->
-                        result.add(
-                            HpoInheritanceMode.builder()
-                                .hpoId(hpo)
-                                .inheritanceModes(phenotype.getInheritanceModes())
-                                .build())
-                      )
-            );
+                omimHpoMapping
+                    .get(phenotype.getOmimId())
+                    .forEach(
+                        hpo ->
+                            result.add(
+                                HpoInheritanceMode.builder()
+                                    .hpoId(hpo)
+                                    .inheritanceModes(phenotype.getInheritanceModes())
+                                    .build())));
     return result;
   }
 
@@ -252,7 +233,6 @@ public class GenemapConverter {
     }
     return inheritanceModusList;
   }
-
 
   private static void writeToFile(
       Path output, Collection<GeneInheritanceValue> geneInheritanceValues) {
@@ -301,15 +281,18 @@ public class GenemapConverter {
 
   private static String inheritanceModesToString(Set<InheritanceMode> inheritanceModes) {
     StringBuilder result = new StringBuilder();
-    inheritanceModes.stream()
-        .sorted()
-        .forEach(
-            inheritanceMode -> {
-              if (result.length() != 0) {
-                result.append(VALUE_SEPARATOR);
-              }
-              result.append(inheritanceMode.toString());
-            });
+    if (inheritanceModes != null) {
+      inheritanceModes.stream()
+          .sorted()
+          .filter(inheritanceMode -> inheritanceMode != null)
+          .forEach(
+              inheritanceMode -> {
+                if (result.length() != 0) {
+                  result.append(VALUE_SEPARATOR);
+                }
+                result.append(inheritanceMode.toString());
+              });
+    }
     return result.toString();
   }
 }

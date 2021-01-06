@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CGDLine {
+public class CgdLine {
   @CsvBindByName(
       column = "ENTREZ GENE ID",
       required = true)
