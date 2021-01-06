@@ -68,7 +68,8 @@ class AppCommandLineRunner implements CommandLineRunner {
       if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_CGD)) {
         cgdPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT_CGD));
       }
-      GenemapConverter.run(omimPath, cgdPath, getOutput(commandLine));
+      GenemapConverter.run(omimPath, cgdPath,Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_HPO_INPUT)),getOutput(commandLine));
+
     } catch (Exception e) {
       LOGGER.error(e.getLocalizedMessage(), e);
       System.exit(STATUS_MISC_ERROR);

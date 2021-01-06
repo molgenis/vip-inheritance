@@ -18,7 +18,7 @@ public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>,
 
   public static final String SUBVALUE_SEPARATOR = ";";
   public static final int COMMENTS_INDEX = 12;
-  public static final String PATTERN = "(.*),\\s(\\d*\\s\\(\\d*\\)),(.*)";
+  public static final String PATTERN = "(.*),\\s((\\d*)\\s(\\(\\d*\\))),(.*)";
 
   @Override
   protected Set<Phenotype> convert(String phenotypeValue){
@@ -37,12 +37,13 @@ public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>,
       Matcher m = p.matcher(phenotypeString);
       if (m.matches()) {
         String phenotypeName = replaceIllegalChars(m.group(1));
-        String[] inheritance = m.group(3).split(",");
+        String omimId = m.group(3);
+        String[] inheritance = m.group(5).split(",");
         Set<InheritanceMode> phenoInheritanceModes = mapInheritanceModes(inheritance);
         inheritanceModes.addAll(phenoInheritanceModes);
         if (phenotypeName.length() != 0) {
           phenotypeList.add(
-              Phenotype.builder().name(phenotypeName).inheritanceModes(phenoInheritanceModes).build());
+              Phenotype.builder().omimId(omimId).inheritanceModes(phenoInheritanceModes).build());
         }
       }
     }

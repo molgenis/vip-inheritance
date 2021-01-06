@@ -25,7 +25,7 @@ class TextToPhenotypeConverterTest {
 
     Phenotype pheno =
         Phenotype.builder()
-            .name("Epilepsy__juvenile_myoclonic__susceptibility_to")
+            .omimId("123458")
             .inheritanceModes(Set.of(AD))
             .build();
     Set<Phenotype> expected = Collections.singleton(pheno);
@@ -37,8 +37,8 @@ class TextToPhenotypeConverterTest {
     String input ="Epilepsy, juvenile myoclonic, susceptibility to, 123458 (3),X-LINKED DOMINANT,X-LINKED RECESSIVE,?X-LINKED RECESSIVE,X-LINKED,AUTOSOMAL RECESSIVE,AUTOSOMAL DOMINANT,?AUTOSOMAL DOMINANT";
     Phenotype pheno =
         Phenotype.builder()
-            .name("Epilepsy__juvenile_myoclonic__susceptibility_to")
-            .inheritanceModes(Set.of(AD,AR,XD,XR,XL))
+            .omimId("123458")
+            .inheritanceModes(Set.of(AD,AR,XD,XR,XL,YL,PD,PR,IC,DG,MF,SM,DGR,DGD,MT,SMM,ICI))
             .build();
     Set<Phenotype> expected = Collections.singleton(pheno);
     assertEquals(expected, textToPhenotypeConverter.convert(input));
@@ -50,7 +50,7 @@ class TextToPhenotypeConverterTest {
         "Mental retardation, autosomal dominant 42, 123456 (3), Autosomal recessive";
     Phenotype pheno =
         Phenotype.builder()
-            .name("Mental_retardation__autosomal_dominant_42")
+            .omimId("123456")
             .inheritanceModes(Set.of(AR))
             .build();
     Set<Phenotype> expected = Collections.singleton(pheno);
@@ -64,12 +64,12 @@ class TextToPhenotypeConverterTest {
 
     Phenotype pheno1 =
         Phenotype.builder()
-            .name("Mental_retardation__autosomal_dominant_42")
+            .omimId("123456")
             .inheritanceModes(Set.of(AD))
             .build();
     Phenotype pheno2 =
         Phenotype.builder()
-            .name("Leukemia__acute_lymphoblastic__somatic")
+            .omimId("123457")
             .inheritanceModes(Set.of(XL))
             .build();
     Set<Phenotype> expected = Set.of(pheno1, pheno2);
@@ -84,7 +84,7 @@ class TextToPhenotypeConverterTest {
 
     Phenotype pheno =
         Phenotype.builder()
-            .name("Mental_retardation__autosomal_dominant_42")
+            .omimId("123456")
             .inheritanceModes(Set.of(AD))
             .build();
     Set<Phenotype> expected = Collections.singleton(pheno);
@@ -98,7 +98,7 @@ class TextToPhenotypeConverterTest {
         "{Epilepsy, generalized, with febrile seizures plus, type 5, susceptibility to}, 123456 (3), X-Linked";
     Phenotype pheno =
         Phenotype.builder()
-            .name("{Epilepsy__generalized__with_febrile_seizures_plus__type_5__susceptibility_to}")
+            .omimId("123456")
             .inheritanceModes(Set.of(XL))
             .build();
     Set<Phenotype> expected = Collections.singleton(pheno);

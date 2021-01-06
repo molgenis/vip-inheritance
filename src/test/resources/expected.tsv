@@ -1,4 +1,4 @@
-2	AD	
-1234	AD	Mental_retardation__autosomal_dominant_42:AD
-123456	AD,AR	{Epilepsy__generalized__with_febrile_seizures_plus__type_5__susceptibility_to}:AD,{Epilepsy__idiopathic_generalized__10}:AD,{Epilepsy__juvenile_myoclonic__susceptibility_to}:AD,AR
-1234567	AR	?Usher_syndrome__type_1M:AR,Deafness__autosomal_recessive_36:AR,Deafness__neurosensory__without_vestibular_involvement__autosomal_dominant:AR
+2	AD
+1234	AD	HP_9900007:AD,HP_9901348:AD,HP_9902315:AD,HP_9902922:AD,HP_9910910:AD,HP_9910911:AD,HP_9910913:AD,HP_9931964:AD,HP_9931993:AD
+123456	AD,AR	HP_9900007:AD,HP_9901250:AD,HP_9901252:AD,HP_9901263:AD,HP_9901348:AD,HP_9902079:AD,HP_9902315:AD,HP_9902365:AD,HP_9902521:AD,HP_9902922:AD,HP_9910910:AD,HP_9910911:AD,HP_9910913:AD,HP_9931964:AD,HP_9931993:AD
+1234567	AR	HP_9900007:AR,HP_9901250:AR,HP_9901252:AR,HP_9901263:AR,HP_9902079:AR,HP_9902365:AR,HP_9902521:AR,HP_9932480:AR

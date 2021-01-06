@@ -1,12 +1,15 @@
-# VIP inheritance annotation
+[![Build Status](https://travis-ci.org/molgenis/vip-inheritance.svg?branch=main)](https://travis-ci.org/github/molgenis/vip-inheritance)
+[![Quality Status](https://sonarcloud.io/api/project_badges/measure?project=molgenis_vip-inheritance&metric=alert_status)](https://sonarcloud.io/dashboard?id=molgenis_vip-inheritance)
+# Variant Interpretation Pipeline - Inheritance annotation
 ## GenemapConverter
 A tool to converts the omim 'genemap2.txt' to a tab separated file that can be used by the VEP Inheritance Plugin.
 It creates a line for all gene symbols in the input file.
 ###Usage
 ```
-usage: java -jar genemap-mapper.jar -i <arg> [-o <arg>] [-f] [-d]
- -i,--input <arg>    Input genemap2.txt location.
- -o,--output <arg>   Output TSV file
+usage: java -jar genemap-mapper.jar -i <arg> -h <arg> [-o <arg>] [-f] [-d]
+ -i,--input <arg>    Input OMIM genemap2 file.
+ -h,--hpo <arg>      Input HPO .hpoa file (https://hpo.jax.org/app/download/annotation).
+ -o,--output <arg>   Output file (.tsv).
  -f,--force          Override the output file if it already exists.
  -d,--debug          Enable debug mode (additional logging).
 
