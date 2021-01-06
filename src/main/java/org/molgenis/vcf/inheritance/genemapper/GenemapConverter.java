@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import org.molgenis.vcf.inheritance.genemapper.model.CgdLine;
@@ -284,7 +285,7 @@ public class GenemapConverter {
     if (inheritanceModes != null) {
       inheritanceModes.stream()
           .sorted()
-          .filter(inheritanceMode -> inheritanceMode != null)
+          .filter(Objects::nonNull)
           .forEach(
               inheritanceMode -> {
                 if (result.length() != 0) {
