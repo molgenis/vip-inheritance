@@ -1,6 +1,7 @@
 package org.molgenis.vcf.inheritance.genemapper;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode;
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ public class CgdMapper {
   private CgdMapper(){}
 
   static Set<InheritanceMode> mapCgdInheritanceMode(String value) {
-    Set<InheritanceMode> result = new HashSet<>();
+    Set<InheritanceMode> result = new LinkedHashSet<>();
     String[] split = value.split("/");//support AD/AR
     for (String mode : split) {
       switch (mode.trim()) {

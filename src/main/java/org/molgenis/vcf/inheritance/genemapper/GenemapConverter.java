@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -158,7 +159,7 @@ public class GenemapConverter {
 
   static Collection<GeneInheritanceValue> convertToGeneInheritanceValue(
       List<OmimLine> omimLines, List<CgdLine> cgdLines, Map<String, Set<String>> omimHpoMapping) {
-    Map<String, GeneInheritanceValue> geneInheritanceValues = new HashMap<>();
+    Map<String, GeneInheritanceValue> geneInheritanceValues = new LinkedHashMap<>();
     for (OmimLine omimLine : omimLines) {
       Set<HpoInheritanceMode> hpoInheritanceModes =
           convertoToHpoBasedInheritance(omimLine.getPhenotypes(), omimHpoMapping);
@@ -283,7 +284,6 @@ public class GenemapConverter {
     StringBuilder result = new StringBuilder();
     if (inheritanceModes != null) {
       inheritanceModes.stream()
-          .sorted()
           .filter(Objects::nonNull)
           .forEach(
               inheritanceMode -> {
