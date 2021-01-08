@@ -1,6 +1,5 @@
 package org.molgenis.vcf.inheritance.genemapper;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode;
