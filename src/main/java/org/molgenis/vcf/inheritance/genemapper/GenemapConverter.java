@@ -4,28 +4,38 @@ import static com.opencsv.ICSVWriter.DEFAULT_ESCAPE_CHARACTER;
 import static com.opencsv.ICSVWriter.DEFAULT_LINE_END;
 import static com.opencsv.ICSVWriter.DEFAULT_QUOTE_CHARACTER;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.molgenis.vcf.inheritance.genemapper.CgdMapper.mapCgdInheritanceMode;
 
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import org.molgenis.vcf.inheritance.genemapper.model.CgdLine;
 import org.molgenis.vcf.inheritance.genemapper.model.GeneInheritanceValue;
 import org.molgenis.vcf.inheritance.genemapper.model.HpoInheritanceMode;
 import org.molgenis.vcf.inheritance.genemapper.model.HpoLine;
@@ -44,19 +54,44 @@ public class GenemapConverter {
   public static final String COMMENT_PREFIX = "#";
   public static final String VALUE_SEPARATOR = ",";
 
-  public static void run(Path input, Path inputHpo, Path output) {
-    List<OmimLine> omimLines = readOmimFile(input);
+  public static void run(Path inputOmim, Path inputCgd, Path inputHpo, Path output) {
+    List<OmimLine> omimLines = Collections.emptyList();
+    List<CgdLine> cgdLines = Collections.emptyList();
+    if (inputOmim != null) {
+      omimLines = readOmimFile(inputOmim);
+    }
+    if (inputCgd != null) {
+      cgdLines = readCgdFile(inputCgd);
+    }
     List<HpoLine> hpoLines = readHpoFile(inputHpo);
     Map<String, Set<String>> omimHpoMapping = convertHpoLines(hpoLines);
-    List<GeneInheritanceValue> geneInheritanceValues =
-        convertToGeneInheritanceValue(omimLines, omimHpoMapping);
+    Collection<GeneInheritanceValue> geneInheritanceValues =
+        convertToGeneInheritanceValue(omimLines, cgdLines, omimHpoMapping);
     writeToFile(output, geneInheritanceValues);
+  }
+
+  private static List<CgdLine> readCgdFile(Path inputCgd) {
+    List<CgdLine> cgdLines;
+    try (InputStream fileStream = new FileInputStream(inputCgd.toFile());
+        InputStream gzipStream = new GZIPInputStream(fileStream);
+        Reader reader = new BufferedReader(new InputStreamReader(gzipStream))) {
+      CsvToBean<CgdLine> csvToBean =
+          new CsvToBeanBuilder<CgdLine>(reader)
+              .withSeparator('\t')
+              .withType(CgdLine.class)
+              .withThrowExceptions(false)
+              .build();
+      cgdLines = csvToBean.parse();
+      handleCsvParseExceptions(csvToBean.getCapturedExceptions());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    return cgdLines;
   }
 
   private static List<OmimLine> readOmimFile(Path input) {
     List<OmimLine> omimLines;
     try (Reader reader = Files.newBufferedReader(input, UTF_8)) {
-
       CsvToBean<OmimLine> csvToBean =
           new CsvToBeanBuilder<OmimLine>(reader)
               .withSkipLines(3)
@@ -122,16 +157,17 @@ public class GenemapConverter {
     return result;
   }
 
-  static List<GeneInheritanceValue> convertToGeneInheritanceValue(
-      List<OmimLine> omimLines, Map<String, Set<String>> omimHpoMapping) {
-    List<GeneInheritanceValue> geneInheritanceValues = new ArrayList<>();
+  static Collection<GeneInheritanceValue> convertToGeneInheritanceValue(
+      List<OmimLine> omimLines, List<CgdLine> cgdLines, Map<String, Set<String>> omimHpoMapping) {
+    Map<String, GeneInheritanceValue> geneInheritanceValues = new LinkedHashMap<>();
     for (OmimLine omimLine : omimLines) {
       Set<HpoInheritanceMode> hpoInheritanceModes =
           convertoToHpoBasedInheritance(omimLine.getPhenotypes(), omimHpoMapping);
       if (!omimLine.getPhenotypes().isEmpty()) {
         EnumSet<InheritanceMode> inheritanceModes =
             getInheritanceModesList(omimLine.getPhenotypes());
-        geneInheritanceValues.add(
+        geneInheritanceValues.put(
+            omimLine.getGene(),
             GeneInheritanceValue.builder()
                 .hpoInheritanceModes(hpoInheritanceModes)
                 .geneSymbol(omimLine.getGene())
@@ -139,7 +175,17 @@ public class GenemapConverter {
                 .build());
       }
     }
-    return geneInheritanceValues;
+    for (CgdLine cgdLine : cgdLines) {
+      Set<InheritanceMode> inheritanceModes = mapCgdInheritanceMode(cgdLine.getInheritance());
+      GeneInheritanceValue inheritance =
+          GeneInheritanceValue.builder()
+              .hpoInheritanceModes(Collections.emptySet())
+              .geneSymbol(cgdLine.getGene())
+              .inheritanceModes(inheritanceModes)
+              .build();
+      geneInheritanceValues.putIfAbsent(cgdLine.getGene(), inheritance);
+    }
+    return geneInheritanceValues.values();
   }
 
   private static Map<String, Set<String>> convertHpoLines(List<HpoLine> hpoLines) {
@@ -169,17 +215,15 @@ public class GenemapConverter {
         .filter(phenotype -> !phenotype.getInheritanceModes().isEmpty())
         .forEach(
             phenotype ->
-              omimHpoMapping
-                  .get(phenotype.getOmimId())
-                  .forEach(
-                      hpo ->
-                        result.add(
-                            HpoInheritanceMode.builder()
-                                .hpoId(hpo)
-                                .inheritanceModes(phenotype.getInheritanceModes())
-                                .build())
-                      )
-            );
+                omimHpoMapping
+                    .get(phenotype.getOmimId())
+                    .forEach(
+                        hpo ->
+                            result.add(
+                                HpoInheritanceMode.builder()
+                                    .hpoId(hpo)
+                                    .inheritanceModes(phenotype.getInheritanceModes())
+                                    .build())));
     return result;
   }
 
@@ -191,7 +235,8 @@ public class GenemapConverter {
     return inheritanceModusList;
   }
 
-  private static void writeToFile(Path output, List<GeneInheritanceValue> geneInheritanceValues) {
+  private static void writeToFile(
+      Path output, Collection<GeneInheritanceValue> geneInheritanceValues) {
     try (CSVWriter writer =
         new CSVWriter(
             new FileWriter(output.toString()),
@@ -199,9 +244,11 @@ public class GenemapConverter {
             DEFAULT_QUOTE_CHARACTER,
             DEFAULT_ESCAPE_CHARACTER,
             DEFAULT_LINE_END)) {
-      for (GeneInheritanceValue geneInheritanceValue : geneInheritanceValues) {
-        writer.writeNext(geneInheritanceValueToString(geneInheritanceValue), false);
-      }
+      geneInheritanceValues.stream()
+          .filter(geneInheritanceValue -> !geneInheritanceValue.getInheritanceModes().isEmpty())
+          .forEach(
+              geneInheritanceValue ->
+                  writer.writeNext(geneInheritanceValueToString(geneInheritanceValue), false));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -235,15 +282,17 @@ public class GenemapConverter {
 
   private static String inheritanceModesToString(Set<InheritanceMode> inheritanceModes) {
     StringBuilder result = new StringBuilder();
-    inheritanceModes.stream()
-        .sorted()
-        .forEach(
-            inheritanceMode -> {
-              if (result.length() != 0) {
-                result.append(VALUE_SEPARATOR);
-              }
-              result.append(inheritanceMode.toString());
-            });
+    if (inheritanceModes != null) {
+      inheritanceModes.stream()
+          .filter(Objects::nonNull)
+          .forEach(
+              inheritanceMode -> {
+                if (result.length() != 0) {
+                  result.append(VALUE_SEPARATOR);
+                }
+                result.append(inheritanceMode.toString());
+              });
+    }
     return result.toString();
   }
 }

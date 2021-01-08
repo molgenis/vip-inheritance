@@ -1,25 +1,25 @@
 package org.molgenis.vcf.inheritance.genemapper;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.AD;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.AR;
-import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.DG;
-import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.SM;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.XD;
+import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.XL;
 
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.molgenis.vcf.inheritance.genemapper.model.CgdLine;
 import org.molgenis.vcf.inheritance.genemapper.model.GeneInheritanceValue;
 import org.molgenis.vcf.inheritance.genemapper.model.HpoInheritanceMode;
 import org.molgenis.vcf.inheritance.genemapper.model.OmimLine;
@@ -67,8 +67,7 @@ class GenemapConverterTest {
 
   @Test
   void convertToGeneInheritanceValue() {
-    Phenotype phenotype1 =
-        Phenotype.builder().omimId("123").inheritanceModes(Set.of(XD, DG, SM)).build();
+    Phenotype phenotype1 = Phenotype.builder().omimId("123").inheritanceModes(Set.of(XD)).build();
     Phenotype phenotype2 =
         Phenotype.builder().omimId("1234").inheritanceModes(Set.of(AR, XD)).build();
     Phenotype phenotype3 =
@@ -76,22 +75,22 @@ class GenemapConverterTest {
     OmimLine line1 =
         OmimLine.builder().gene("ENS1234567").phenotypes(Set.of(phenotype1, phenotype2)).build();
     OmimLine line2 = OmimLine.builder().gene("ENS1234568").phenotypes(Set.of(phenotype3)).build();
-
-    List<GeneInheritanceValue> expected = new ArrayList<>();
+    CgdLine cgdLine = CgdLine.builder().gene("ENS1234569").inheritance("XL").build();
+    Set<GeneInheritanceValue> expected = new HashSet<>();
     expected.add(
         GeneInheritanceValue.builder()
             .hpoInheritanceModes(
                 Set.of(
                     HpoInheritanceMode.builder()
                         .hpoId("HP_0123")
-                        .inheritanceModes(Set.of(DG, XD, SM))
+                        .inheritanceModes(Set.of(XD, AR))
                         .build(),
                     HpoInheritanceMode.builder()
                         .hpoId("HP_0124")
-                        .inheritanceModes(Set.of(DG, XD, SM))
+                        .inheritanceModes(Set.of(XD))
                         .build()))
             .geneSymbol("ENS1234567")
-            .inheritanceModes(Set.of(XD, DG, SM, AR))
+            .inheritanceModes(Set.of(XD, AR))
             .build());
     expected.add(
         GeneInheritanceValue.builder()
@@ -104,11 +103,25 @@ class GenemapConverterTest {
             .geneSymbol("ENS1234568")
             .inheritanceModes(Set.of(AR, AD))
             .build());
+    expected.add(
+        GeneInheritanceValue.builder()
+            .hpoInheritanceModes(emptySet())
+            .geneSymbol("ENS1234569")
+            .inheritanceModes(Set.of(XL))
+            .build());
 
     assertEquals(
         expected,
-        GenemapConverter.convertToGeneInheritanceValue(
-            Arrays.asList(line1, line2),
-            Map.of("123", Set.of("HP_0123", "HP_0124"), "12345", Set.of("HP_012345"))));
+        new HashSet<>(
+            GenemapConverter.convertToGeneInheritanceValue(
+                asList(line1, line2),
+                Collections.singletonList(cgdLine),
+                Map.of(
+                    "123",
+                    Set.of("HP_0124"),
+                    "1234",
+                    Set.of("HP_0123"),
+                    "12345",
+                    Set.of("HP_012345")))));
   }
 }

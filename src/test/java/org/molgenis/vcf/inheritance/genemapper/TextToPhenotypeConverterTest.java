@@ -34,11 +34,11 @@ class TextToPhenotypeConverterTest {
 
   @Test
   void parseOmimLineAllValues() {
-    String input ="Epilepsy, juvenile myoclonic, susceptibility to, 123458 (3), Y-LINKED,X-LINKED DOMINANT,X-LINKED RECESSIVE,?X-LINKED RECESSIVE,X-LINKED,AUTOSOMAL RECESSIVE,AUTOSOMAL DOMINANT,?AUTOSOMAL DOMINANT,PSEUDOAUTOSOMAL RECESSIVE,PSEUDOAUTOSOMAL DOMINANT,ISOLATED CASES,DIGENIC,DIGENIC RECESSIVE,DIGENIC DOMINANT,MITOCHONDRIAL,MULTIFACTORIAL,SOMATIC MUTATION,SOMATIC MOSAICISM,INHERITED CHROMOSOMAL IMBALANCE";
+    String input ="Epilepsy, juvenile myoclonic, susceptibility to, 123458 (3),X-LINKED DOMINANT,X-LINKED RECESSIVE,?X-LINKED RECESSIVE,X-LINKED,AUTOSOMAL RECESSIVE,AUTOSOMAL DOMINANT,?AUTOSOMAL DOMINANT";
     Phenotype pheno =
         Phenotype.builder()
             .omimId("123458")
-            .inheritanceModes(Set.of(AD,AR,XD,XR,XL,YL,PD,PR,IC,DG,MF,SM,DGR,DGD,MT,SMM,ICI))
+            .inheritanceModes(Set.of(AD,AR,XD,XR,XL))
             .build();
     Set<Phenotype> expected = Collections.singleton(pheno);
     assertEquals(expected, textToPhenotypeConverter.convert(input));
@@ -60,7 +60,7 @@ class TextToPhenotypeConverterTest {
   @Test
   void parseOmimMultiPhenoLine() {
     String input ="Mental retardation, autosomal dominant 42, 123456 (3), Autosomal dominant; "
-            + "Leukemia, acute lymphoblastic, somatic, 123457 (3), Somatic Mutation";
+            + "Leukemia, acute lymphoblastic, somatic, 123457 (3), X-Linked";
 
     Phenotype pheno1 =
         Phenotype.builder()
@@ -70,7 +70,7 @@ class TextToPhenotypeConverterTest {
     Phenotype pheno2 =
         Phenotype.builder()
             .omimId("123457")
-            .inheritanceModes(Set.of(SM))
+            .inheritanceModes(Set.of(XL))
             .build();
     Set<Phenotype> expected = Set.of(pheno1, pheno2);
     assertEquals(expected, textToPhenotypeConverter.convert(input));

@@ -10,8 +10,10 @@ import org.apache.commons.cli.Options;
 
 class AppCommandLineOptions {
 
-  static final String OPT_INPUT = "i";
-  static final String OPT_INPUT_LONG = "input";
+  static final String OPT_INPUT_OMIM = "i";
+  static final String OPT_INPUT_OMIM_LONG = "omim input";
+  static final String OPT_INPUT_CGD = "c";
+  static final String OPT_INPUT_CGD_LONG = "cgd input";
   static final String OPT_HPO_INPUT = "h";
   static final String OPT_HPO_INPUT_LONG = "hpo";
   static final String OPT_OUTPUT = "o";
@@ -28,10 +30,9 @@ class AppCommandLineOptions {
   static {
     Options appOptions = new Options();
     appOptions.addOption(
-        Option.builder(OPT_INPUT)
+        Option.builder(OPT_INPUT_OMIM)
             .hasArg(true)
-            .required()
-            .longOpt(OPT_INPUT_LONG)
+            .longOpt(OPT_INPUT_OMIM_LONG)
             .desc("Input OMIM genemap2 file.")
             .build());
     appOptions.addOption(
@@ -40,6 +41,12 @@ class AppCommandLineOptions {
         .required()
         .longOpt(OPT_HPO_INPUT_LONG)
         .desc("Input HPO .hpoa file.")
+        .build());
+    appOptions.addOption(
+        Option.builder(OPT_INPUT_CGD)
+        .hasArg(true)
+        .longOpt(OPT_INPUT_CGD_LONG)
+        .desc("Input cgd txt.gz file.")
         .build());
     appOptions.addOption(
         Option.builder(OPT_OUTPUT)
@@ -85,7 +92,19 @@ class AppCommandLineOptions {
   }
 
   private static void validateInput(CommandLine commandLine) {
-    Path inputPath = Path.of(commandLine.getOptionValue(OPT_INPUT));
+    if (commandLine.hasOption(OPT_INPUT_CGD)) {
+      validateFile(commandLine, OPT_INPUT_CGD, ".txt.gz");
+    }
+    if (commandLine.hasOption(OPT_INPUT_OMIM)) {
+      validateFile(commandLine, OPT_INPUT_OMIM, ".txt");
+    }
+    if(!commandLine.hasOption(OPT_INPUT_OMIM) && !commandLine.hasOption(OPT_INPUT_CGD)){
+      throw new MissingInputException();
+    }
+  }
+
+  private static void validateFile(CommandLine commandLine, String option, String extension) {
+    Path inputPath = Path.of(commandLine.getOptionValue(option));
     if (!Files.exists(inputPath)) {
       throw new IllegalArgumentException(
           format("Input file '%s' does not exist.", inputPath.toString()));
@@ -99,9 +118,9 @@ class AppCommandLineOptions {
           format("Input file '%s' is not readable.", inputPath.toString()));
     }
     String inputPathStr = inputPath.toString();
-    if (!inputPathStr.endsWith(".txt")) {
+    if (!inputPathStr.endsWith(extension)) {
       throw new IllegalArgumentException(
-          format("Input file '%s' is not a .txt file.", inputPathStr));
+          format("Input file '%s' is not a %s file.", inputPathStr, extension));
     }
   }
 
