@@ -22,8 +22,8 @@ Currently only values supported by [VIP inheritance matcher](https://github.com/
 
 |OMIM Inheritance*|Annotation|
 |---|---|
-|X-LINKED DOMINANT|XD|
-|X-LINKED RECESSIVE|XR|
+|X-LINKED DOMINANT|XLD|
+|X-LINKED RECESSIVE|XLR|
 |X-LINKED|XL|
 |AUTOSOMAL RECESSIVE|AR|
 |AUTOSOMAL DOMINANT|AD|

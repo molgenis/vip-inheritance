@@ -60,10 +60,10 @@ public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>,
       value = preprocessValue(value);
       switch (value) {
         case "X-LINKED DOMINANT":
-          modes.add(InheritanceMode.XD);
+          modes.add(InheritanceMode.XLD);
           break;
         case "X-LINKED RECESSIVE":
-          modes.add(InheritanceMode.XR);
+          modes.add(InheritanceMode.XLR);
           break;
         case "X-LINKED":
           modes.add(InheritanceMode.XL);
