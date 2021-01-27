@@ -8,7 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.AD;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.AR;
-import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.XD;
+import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.XLD;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.XL;
 
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
@@ -67,9 +67,9 @@ class GenemapConverterTest {
 
   @Test
   void convertToGeneInheritanceValue() {
-    Phenotype phenotype1 = Phenotype.builder().omimId("123").inheritanceModes(Set.of(XD)).build();
+    Phenotype phenotype1 = Phenotype.builder().omimId("123").inheritanceModes(Set.of(XLD)).build();
     Phenotype phenotype2 =
-        Phenotype.builder().omimId("1234").inheritanceModes(Set.of(AR, XD)).build();
+        Phenotype.builder().omimId("1234").inheritanceModes(Set.of(AR, XLD)).build();
     Phenotype phenotype3 =
         Phenotype.builder().omimId("12345").inheritanceModes(Set.of(AR, AD)).build();
     OmimLine line1 =
@@ -83,14 +83,14 @@ class GenemapConverterTest {
                 Set.of(
                     HpoInheritanceMode.builder()
                         .hpoId("HP_0123")
-                        .inheritanceModes(Set.of(XD, AR))
+                        .inheritanceModes(Set.of(XLD, AR))
                         .build(),
                     HpoInheritanceMode.builder()
                         .hpoId("HP_0124")
-                        .inheritanceModes(Set.of(XD))
+                        .inheritanceModes(Set.of(XLD))
                         .build()))
             .geneSymbol("ENS1234567")
-            .inheritanceModes(Set.of(XD, AR))
+            .inheritanceModes(Set.of(XLD, AR))
             .build());
     expected.add(
         GeneInheritanceValue.builder()
