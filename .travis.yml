@@ -14,9 +14,9 @@ script:
   - mvn clean install sonar:sonar -Pcoverage -Dsonar.projectKey=molgenis_vip-inheritance
 deploy:
   provider: releases
-  api_key:
+  token:
     secure: gFGJXDOffqdyYoZsUxzOLEbYIU70Xww8THJHVPAcq2GJk8ZXlHB2w7WFQ8M2er5/rlF3HjwpKaluha0p+9WHWqjUbjxB1O4o/mYOzLl7EEDKd82ut0XmPRAbg/ZusRNxzhVA9H5IkrKITYipnCeLssjYWMS2SV1qOyN+CXB7f7ZUoFPktYyU1C4Nltd5TQl5tTiOPRNT8BjXGAfmlKdBciMsz4YZDUV+dPdrAffhkbOvdrqo+/dIAN8LVtajFqbAhESrK7DoGverWuxgYnZoe//f9zNCn656edn2iQrB8dWuv5e6N4g4YpbBqJVQDkAck/KEXReQfSZFhx3l/7A/Vy5/MOuVVAaBuncbQTgGjRrweaqEstKyZDc4+YzmXOvJU1jW3MlNBmbrDMqExylitCf4cDEU2F49EIcNYIILXDdbE5KGA7SVg9KXKJYtehngF65/lOQjNVlF9963CS47JdQJjGJhHDhaaHrKTX/UH+FbZvpuXNWJhgrUg7sx++RhybbS+oe2FfCKnNYG9bKpgnzWJPtwhIz60TTbrEXMKHX6nV6sZpRBdFHzUrXC577/GhclAMUr/vX5SHthMpZGkDf6x60dcMs8AaDM9T+RIifAUu+ucvR70aoVm0aIgUKDgdlOX/D4aJAFyaTYwBcnohQT2pB4HDyrd2B4A67jLUI=
-  file: genemap-mapper.jar
+  file: target/genemap-mapper.jar
   prerelease: true
   on:
     tags: true
