@@ -80,6 +80,7 @@ public class GenemapConverter {
               .withSeparator('\t')
               .withType(CgdLine.class)
               .withThrowExceptions(false)
+              .withIgnoreQuotations(true)
               .build();
       cgdLines = csvToBean.parse();
       handleCsvParseExceptions(csvToBean.getCapturedExceptions());
