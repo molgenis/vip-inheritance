@@ -34,11 +34,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import org.molgenis.vcf.inheritance.genemapper.model.CgdLine;
 import org.molgenis.vcf.inheritance.genemapper.model.GeneInheritanceValue;
 import org.molgenis.vcf.inheritance.genemapper.model.HpoInheritanceMode;
 import org.molgenis.vcf.inheritance.genemapper.model.HpoLine;
+import org.molgenis.vcf.inheritance.genemapper.model.IncompletePenetranceLine;
 import org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode;
 import org.molgenis.vcf.inheritance.genemapper.model.OmimLine;
 import org.molgenis.vcf.inheritance.genemapper.model.Phenotype;
@@ -54,19 +56,25 @@ public class GenemapConverter {
   public static final String COMMENT_PREFIX = "#";
   public static final String VALUE_SEPARATOR = ",";
 
-  public static void run(Path inputOmim, Path inputCgd, Path inputHpo, Path output) {
+  public static void run(
+      Path inputOmim, Path inputCgd, Path inputHpo, Path inputIncompletePenetrance, Path output) {
     List<OmimLine> omimLines = Collections.emptyList();
     List<CgdLine> cgdLines = Collections.emptyList();
+    List<String> incompletePenetrance = Collections.emptyList();
+
     if (inputOmim != null) {
       omimLines = readOmimFile(inputOmim);
     }
     if (inputCgd != null) {
       cgdLines = readCgdFile(inputCgd);
     }
+    if (inputIncompletePenetrance != null) {
+      incompletePenetrance = readIPFile(inputIncompletePenetrance);
+    }
     List<HpoLine> hpoLines = readHpoFile(inputHpo);
     Map<String, Set<String>> omimHpoMapping = convertHpoLines(hpoLines);
     Collection<GeneInheritanceValue> geneInheritanceValues =
-        convertToGeneInheritanceValue(omimLines, cgdLines, omimHpoMapping);
+        convertToGeneInheritanceValue(omimLines, cgdLines, omimHpoMapping, incompletePenetrance);
     writeToFile(output, geneInheritanceValues);
   }
 
@@ -127,6 +135,26 @@ public class GenemapConverter {
     return hpoLines;
   }
 
+  private static List<String> readIPFile(Path inputIp) {
+    List<IncompletePenetranceLine> incompletePenetranceLines;
+    try (Reader reader = Files.newBufferedReader(inputIp, UTF_8)) {
+
+      CsvToBean<IncompletePenetranceLine> csvToBean =
+          new CsvToBeanBuilder<IncompletePenetranceLine>(reader)
+              .withSeparator('\t')
+              .withType(IncompletePenetranceLine.class)
+              .withThrowExceptions(false)
+              .build();
+      incompletePenetranceLines = csvToBean.parse();
+      handleCsvParseExceptions(csvToBean.getCapturedExceptions());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    return incompletePenetranceLines.stream()
+        .map(IncompletePenetranceLine::getGene)
+        .collect(Collectors.toList());
+  }
+
   static void handleCsvParseExceptions(List<CsvException> exceptions) {
     exceptions.forEach(
         csvException -> {
@@ -159,7 +187,10 @@ public class GenemapConverter {
   }
 
   static Collection<GeneInheritanceValue> convertToGeneInheritanceValue(
-      List<OmimLine> omimLines, List<CgdLine> cgdLines, Map<String, Set<String>> omimHpoMapping) {
+      List<OmimLine> omimLines,
+      List<CgdLine> cgdLines,
+      Map<String, Set<String>> omimHpoMapping,
+      List<String> incompletePenetrance) {
     Map<String, GeneInheritanceValue> geneInheritanceValues = new LinkedHashMap<>();
     for (OmimLine omimLine : omimLines) {
       Set<HpoInheritanceMode> hpoInheritanceModes =
@@ -173,6 +204,7 @@ public class GenemapConverter {
                 .hpoInheritanceModes(hpoInheritanceModes)
                 .geneSymbol(omimLine.getGene())
                 .inheritanceModes(inheritanceModes)
+                .isIncompletePenetrance(incompletePenetrance.contains(omimLine.getGene()))
                 .build());
       }
     }
@@ -183,6 +215,7 @@ public class GenemapConverter {
               .hpoInheritanceModes(Collections.emptySet())
               .geneSymbol(cgdLine.getGene())
               .inheritanceModes(inheritanceModes)
+              .isIncompletePenetrance(incompletePenetrance.contains(cgdLine.getGene()))
               .build();
       geneInheritanceValues.putIfAbsent(cgdLine.getGene(), inheritance);
     }
@@ -259,7 +292,9 @@ public class GenemapConverter {
     return new String[] {
       geneInheritanceValue.getGeneSymbol(),
       inheritanceModesToString(geneInheritanceValue.getInheritanceModes()),
-      phenotypeValuesToString(geneInheritanceValue.getHpoInheritanceModes())
+      phenotypeValuesToString(geneInheritanceValue.getHpoInheritanceModes()),
+      geneInheritanceValue.isIncompletePenetrance() ? "1" : "",
+      geneInheritanceValue.getSource()
     };
   }
 

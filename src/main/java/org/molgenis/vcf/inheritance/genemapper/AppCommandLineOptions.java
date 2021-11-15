@@ -14,6 +14,8 @@ class AppCommandLineOptions {
   static final String OPT_INPUT_OMIM_LONG = "omim input";
   static final String OPT_INPUT_CGD = "c";
   static final String OPT_INPUT_CGD_LONG = "cgd input";
+  static final String OPT_INPUT_IP = "ip";
+  static final String OPT_INPUT_IP_LONG = "incomplete_penetrance";
   static final String OPT_HPO_INPUT = "h";
   static final String OPT_HPO_INPUT_LONG = "hpo";
   static final String OPT_OUTPUT = "o";
@@ -48,6 +50,12 @@ class AppCommandLineOptions {
         .longOpt(OPT_INPUT_CGD_LONG)
         .desc("Input cgd txt.gz file.")
         .build());
+    appOptions.addOption(
+        Option.builder(OPT_INPUT_IP)
+            .hasArg(true)
+            .longOpt(OPT_INPUT_IP_LONG)
+            .desc("file with incomplete penetrance genes (.tsv).")
+            .build());
     appOptions.addOption(
         Option.builder(OPT_OUTPUT)
             .hasArg(true)

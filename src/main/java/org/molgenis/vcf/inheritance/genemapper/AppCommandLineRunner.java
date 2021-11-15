@@ -62,13 +62,23 @@ class AppCommandLineRunner implements CommandLineRunner {
     try {
       Path omimPath = null;
       Path cgdPath = null;
+      Path ipPath = null;
+
       if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_OMIM)) {
         omimPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT_OMIM));
       }
       if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_CGD)) {
         cgdPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT_CGD));
       }
-      GenemapConverter.run(omimPath, cgdPath,Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_HPO_INPUT)),getOutput(commandLine));
+      if(commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_IP)){
+        ipPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT_IP));
+      }
+      GenemapConverter.run(
+          omimPath,
+          cgdPath,
+          Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_HPO_INPUT)),
+          ipPath,
+          getOutput(commandLine));
 
     } catch (Exception e) {
       LOGGER.error(e.getLocalizedMessage(), e);
@@ -93,17 +103,18 @@ class AppCommandLineRunner implements CommandLineRunner {
       outputPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_OUTPUT));
     } else {
       String output;
-      if(commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_OMIM)){
-        output = commandLine
-            .getOptionValue(AppCommandLineOptions.OPT_INPUT_OMIM)
-            .replace(".txt", "out.tsv");
-      }else{
-        output = commandLine
-            .getOptionValue(AppCommandLineOptions.OPT_INPUT_CGD)
-            .replace(".txt.gz", "out.tsv");
+      if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_OMIM)) {
+        output =
+            commandLine
+                .getOptionValue(AppCommandLineOptions.OPT_INPUT_OMIM)
+                .replace(".txt", "out.tsv");
+      } else {
+        output =
+            commandLine
+                .getOptionValue(AppCommandLineOptions.OPT_INPUT_CGD)
+                .replace(".txt.gz", "out.tsv");
       }
-      outputPath =
-          Path.of(output);
+      outputPath = Path.of(output);
     }
     return outputPath;
   }
