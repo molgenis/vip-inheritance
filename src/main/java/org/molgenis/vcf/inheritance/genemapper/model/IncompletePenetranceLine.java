@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @Builder
 public class IncompletePenetranceLine {
   @CsvBindByName(
-      column = "Gene",
+      column = "gene_id",
       required = true)
   String gene;
 
   @CsvBindByName(
-      column = "Source",
+      column = "id_source",
       required = true)
   String source;
 }
