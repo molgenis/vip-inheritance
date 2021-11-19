@@ -1,2 +1,3 @@
-Gene	Symbol
-1234	TEST
+Gene	Symbol	Source
+1234	TEST	EntrezGene
+12345	TEST2	HGNC

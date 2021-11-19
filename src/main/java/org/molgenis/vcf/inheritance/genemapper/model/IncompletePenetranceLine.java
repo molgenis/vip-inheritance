@@ -15,4 +15,9 @@ public class IncompletePenetranceLine {
       column = "Gene",
       required = true)
   String gene;
+
+  @CsvBindByName(
+      column = "Source",
+      required = true)
+  String source;
 }

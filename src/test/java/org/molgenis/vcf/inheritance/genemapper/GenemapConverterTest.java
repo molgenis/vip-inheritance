@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.vcf.inheritance.genemapper.model.CgdLine;
 import org.molgenis.vcf.inheritance.genemapper.model.GeneInheritanceValue;
 import org.molgenis.vcf.inheritance.genemapper.model.HpoInheritanceMode;
+import org.molgenis.vcf.inheritance.genemapper.model.IncompletePenetranceLine;
 import org.molgenis.vcf.inheritance.genemapper.model.OmimLine;
 import org.molgenis.vcf.inheritance.genemapper.model.Phenotype;
 
@@ -125,6 +126,6 @@ class GenemapConverterTest {
                     "1234",
                     Set.of("HP_0123"),
                     "12345",
-                    Set.of("HP_012345")), List.of("ENS1234569","ENS1234567"))));
+                    Set.of("HP_012345")), List.of(new IncompletePenetranceLine("ENS1234569","EntrezGene"),new IncompletePenetranceLine("ENS1234567","EntrezGene")))));
   }
 }
