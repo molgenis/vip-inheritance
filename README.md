@@ -6,13 +6,18 @@ A tool to converts the omim 'genemap2.txt' to a tab separated file that can be u
 It creates a line for all gene symbols in the input file.
 ###Usage
 ```
-usage: java -jar genemap-mapper.jar [-i <arg>] -h <arg> [-c <arg>] [-o <arg>] [-f] [-d]
- -i,--omim input <arg>   Input OMIM genemap2 file.
- -h,--hpo <arg>          Input HPO .hpoa file.
- -c,--cgd input <arg>    Input cgd txt.gz file.
- -o,--output <arg>       Output file (.tsv).
- -f,--force              Override the output file if it already exists.
- -d,--debug              Enable debug mode (additional logging).
+usage: java -jar genemap-mapper.jar [-i <arg>] -h <arg> [-c <arg>] -ip
+       <arg> [-o <arg>] [-f] [-d]
+ -i,--omim input <arg>               Input OMIM genemap2 file.
+ -h,--hpo <arg>                      Input HPO .hpoa file.
+ -c,--cgd input <arg>                Input cgd txt.gz file.
+ -ip,--incomplete_penetrance <arg>   file with incomplete penetrance genes, containing at lease a 'Gene' and a 'Source' column.
+                                     (.tsv).
+ -o,--output <arg>                   Output file (.tsv).
+ -f,--force                          Override the output file if it
+                                     already exists.
+ -d,--debug                          Enable debug mode (additional
+                                     logging).
 
 usage: java -jar genemap-mapper.jar -v
  -v,--version   Print version.

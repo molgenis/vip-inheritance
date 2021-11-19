@@ -11,4 +11,6 @@ public class GeneInheritanceValue {
   @NonNull String geneSymbol;
   Set<HpoInheritanceMode> hpoInheritanceModes;
   Set<InheritanceMode> inheritanceModes;
+  boolean isIncompletePenetrance;
+  String source = "EntrezGene";
 }

@@ -15,6 +15,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.vcf.inheritance.genemapper.model.CgdLine;
 import org.molgenis.vcf.inheritance.genemapper.model.GeneInheritanceValue;
 import org.molgenis.vcf.inheritance.genemapper.model.HpoInheritanceMode;
+import org.molgenis.vcf.inheritance.genemapper.model.IncompletePenetranceLine;
 import org.molgenis.vcf.inheritance.genemapper.model.OmimLine;
 import org.molgenis.vcf.inheritance.genemapper.model.Phenotype;
 
@@ -91,6 +93,7 @@ class GenemapConverterTest {
                         .build()))
             .geneSymbol("ENS1234567")
             .inheritanceModes(Set.of(XLD, AR))
+            .isIncompletePenetrance(true)
             .build());
     expected.add(
         GeneInheritanceValue.builder()
@@ -108,6 +111,7 @@ class GenemapConverterTest {
             .hpoInheritanceModes(emptySet())
             .geneSymbol("ENS1234569")
             .inheritanceModes(Set.of(XL))
+            .isIncompletePenetrance(true)
             .build());
 
     assertEquals(
@@ -122,6 +126,6 @@ class GenemapConverterTest {
                     "1234",
                     Set.of("HP_0123"),
                     "12345",
-                    Set.of("HP_012345")))));
+                    Set.of("HP_012345")), List.of(new IncompletePenetranceLine("ENS1234569","EntrezGene"),new IncompletePenetranceLine("ENS1234567","EntrezGene")))));
   }
 }

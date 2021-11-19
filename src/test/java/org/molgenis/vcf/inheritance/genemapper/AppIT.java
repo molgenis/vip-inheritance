@@ -20,9 +20,10 @@ class AppIT {
     String omimFile = ResourceUtils.getFile("classpath:input_genemap.txt").toString();
     String cgdFile = ResourceUtils.getFile("classpath:input_cgd.txt.gz").toString();
     String hpoFile = ResourceUtils.getFile("classpath:phenotypes.hpoa").toString();
+    String ipFile = ResourceUtils.getFile("classpath:incompletePenetrance.tsv").toString();
     String outputFile = sharedTempDir.resolve("expected.tsv").toString();
 
-    String[] args = {"-i", omimFile,"-c", cgdFile, "-o", outputFile, "-f", "-h", hpoFile};
+    String[] args = {"-i", omimFile,"-c", cgdFile, "-o", outputFile, "-f", "-h", hpoFile, "-ip", ipFile};
     SpringApplication.run(App.class, args);
 
     String actual = Files.readString(Path.of(outputFile));
