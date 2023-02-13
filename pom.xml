@@ -7,13 +7,13 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.2</version>
+    <version>3.0.2</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>org.molgenis</groupId>
   <artifactId>vip-inheritance</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.1</version>
 
   <name>vip-inheritance</name>
   <description>Inheritance annotation and matching for vip</description>
@@ -39,9 +39,9 @@
 
   <properties>
     <java.version>17</java.version>
-    <commons.cli.version>1.4</commons.cli.version>
-    <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
-    <opencsv.version>5.2</opencsv.version>
+    <commons.cli.version>1.5.0</commons.cli.version>
+    <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
+    <opencsv.version>5.7.1</opencsv.version>
   </properties>
 
   <profiles>
