@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @Builder
 public class HpoLine {
   @CsvBindByName(
-      column = "#DatabaseID",
+      column = "database_id",
       required = true)
   String databaseId;
 
   @CsvBindByName(
-      column = "HPO_ID",
+      column = "hpo_id",
       required = true)
   String hpoId;
 }
