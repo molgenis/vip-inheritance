@@ -189,6 +189,12 @@ public class GenemapConverter {
       Map<String, Set<String>> omimHpoMapping,
       List<IncompletePenetranceLine> incompletePenetrance) {
     Map<String, GeneInheritanceValue> geneInheritanceValues = new LinkedHashMap<>();
+    addOmimInheritanceModes(omimLines, omimHpoMapping, incompletePenetrance, geneInheritanceValues);
+    addCgdInheritanceModes(cgdLines, incompletePenetrance, geneInheritanceValues);
+    return geneInheritanceValues.values();
+  }
+
+  private static void addOmimInheritanceModes(List<OmimLine> omimLines, Map<String, Set<String>> omimHpoMapping, List<IncompletePenetranceLine> incompletePenetrance, Map<String, GeneInheritanceValue> geneInheritanceValues) {
     for (OmimLine omimLine : omimLines) {
       Set<HpoInheritanceMode> hpoInheritanceModes =
           convertoToHpoBasedInheritance(omimLine.getPhenotypes(), omimHpoMapping);
@@ -205,18 +211,26 @@ public class GenemapConverter {
                 .build());
       }
     }
+  }
+
+  private static void addCgdInheritanceModes(List<CgdLine> cgdLines, List<IncompletePenetranceLine> incompletePenetrance, Map<String, GeneInheritanceValue> geneInheritanceValues) {
     for (CgdLine cgdLine : cgdLines) {
       Set<InheritanceMode> inheritanceModes = mapCgdInheritanceMode(cgdLine.getInheritance());
+      Set<HpoInheritanceMode> hpoInheritanceModes = Collections.emptySet();
+      if(geneInheritanceValues.containsKey(cgdLine.getGene())) {
+        GeneInheritanceValue omimInheritanceValue = geneInheritanceValues.get(cgdLine.getGene());
+        inheritanceModes.addAll(omimInheritanceValue.getInheritanceModes());
+        hpoInheritanceModes = omimInheritanceValue.getHpoInheritanceModes();
+      }
       GeneInheritanceValue inheritance =
-          GeneInheritanceValue.builder()
-              .hpoInheritanceModes(Collections.emptySet())
-              .geneSymbol(cgdLine.getGene())
-              .inheritanceModes(inheritanceModes)
-              .isIncompletePenetrance(isIncompletePenetrance(cgdLine.getGene(), incompletePenetrance))
-              .build();
-      geneInheritanceValues.putIfAbsent(cgdLine.getGene(), inheritance);
+              GeneInheritanceValue.builder()
+                      .hpoInheritanceModes(hpoInheritanceModes)
+                      .geneSymbol(cgdLine.getGene())
+                      .inheritanceModes(inheritanceModes)
+                      .isIncompletePenetrance(isIncompletePenetrance(cgdLine.getGene(), incompletePenetrance))
+                      .build();
+      geneInheritanceValues.put(cgdLine.getGene(), inheritance);
     }
-    return geneInheritanceValues.values();
   }
 
   private static boolean isIncompletePenetrance(String gene,
