@@ -74,10 +74,15 @@ class GenemapConverterTest {
         Phenotype.builder().omimId("1234").inheritanceModes(Set.of(AR, XLD)).build();
     Phenotype phenotype3 =
         Phenotype.builder().omimId("12345").inheritanceModes(Set.of(AR, AD)).build();
+    Phenotype phenotype4 =
+            Phenotype.builder().omimId("123456").inheritanceModes(emptySet()).build();
     OmimLine line1 =
         OmimLine.builder().gene("ENS1234567").phenotypes(Set.of(phenotype1, phenotype2)).build();
     OmimLine line2 = OmimLine.builder().gene("ENS1234568").phenotypes(Set.of(phenotype3)).build();
-    CgdLine cgdLine = CgdLine.builder().gene("ENS1234569").inheritance("XL").build();
+    OmimLine line3 =
+            OmimLine.builder().gene("1234567").phenotypes(Set.of(phenotype4)).build();
+    CgdLine cgdLine1 = CgdLine.builder().gene("ENS1234569").inheritance("XL").build();
+    CgdLine cgdLine2 = CgdLine.builder().gene("1234567").inheritance("AD").build();
     Set<GeneInheritanceValue> expected = new HashSet<>();
     expected.add(
         GeneInheritanceValue.builder()
@@ -113,13 +118,19 @@ class GenemapConverterTest {
             .inheritanceModes(Set.of(XL))
             .isIncompletePenetrance(true)
             .build());
+    expected.add(
+            GeneInheritanceValue.builder()
+                    .hpoInheritanceModes(emptySet())
+                    .geneSymbol("1234567")
+                    .inheritanceModes(Set.of(AD))
+                    .isIncompletePenetrance(false)
+                    .build());
 
     assertEquals(
         expected,
         new HashSet<>(
             GenemapConverter.convertToGeneInheritanceValue(
-                asList(line1, line2),
-                Collections.singletonList(cgdLine),
+                asList(line1, line2, line3), asList(cgdLine1, cgdLine2),
                 Map.of(
                     "123",
                     Set.of("HP_0124"),
