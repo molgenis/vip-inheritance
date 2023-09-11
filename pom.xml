@@ -13,7 +13,7 @@
 
   <groupId>org.molgenis</groupId>
   <artifactId>vip-inheritance</artifactId>
-  <version>3.1.2</version>
+  <version>3.1.3</version>
 
   <name>vip-inheritance</name>
   <description>Inheritance annotation and matching for vip</description>
