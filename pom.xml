@@ -41,7 +41,7 @@
     <java.version>17</java.version>
     <commons.cli.version>1.5.0</commons.cli.version>
     <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
-    <opencsv.version>5.7.1</opencsv.version>
+    <opencsv.version>5.8</opencsv.version>
   </properties>
 
   <profiles>
