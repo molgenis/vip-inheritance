@@ -28,13 +28,15 @@ usage: java -jar genemap-mapper.jar -v
 ###Mapping
 Currently only values supported by [VIP inheritance matcher](https://github.com/molgenis/vip-inheritance-matcher) are supported.
 
-|OMIM Inheritance*|Annotation|
-|---|---|
-|X-LINKED DOMINANT|XLD|
-|X-LINKED RECESSIVE|XLR|
-|X-LINKED|XL|
-|AUTOSOMAL RECESSIVE|AR|
-|AUTOSOMAL DOMINANT|AD|
+| OMIM Inheritance*   | Annotation |
+|---------------------|------------|
+| X-LINKED DOMINANT   | XLD        |
+| X-LINKED RECESSIVE  | XLR        |
+| X-LINKED            | XL         |
+| AUTOSOMAL RECESSIVE | AR         |
+| AUTOSOMAL DOMINANT  | AD         |
+| Y-LINKED            | YL         |
+| MITOCHONDRIAL       | MT         |
 *:OMIM provisional inheritance modes (starting with ?) are mapped the same as non provisional values.
 
 ####Unsupported OMIM inheritance values:

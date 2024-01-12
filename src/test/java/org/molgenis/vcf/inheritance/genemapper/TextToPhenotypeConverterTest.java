@@ -34,11 +34,11 @@ class TextToPhenotypeConverterTest {
 
   @Test
   void parseOmimLineAllValues() {
-    String input ="Epilepsy, juvenile myoclonic, susceptibility to, 123458 (3),X-LINKED DOMINANT,X-LINKED RECESSIVE,?X-LINKED RECESSIVE,X-LINKED,AUTOSOMAL RECESSIVE,AUTOSOMAL DOMINANT,?AUTOSOMAL DOMINANT";
+    String input ="Epilepsy, juvenile myoclonic, susceptibility to, 123458 (3),X-LINKED DOMINANT,X-LINKED RECESSIVE,?X-LINKED RECESSIVE,X-LINKED,AUTOSOMAL RECESSIVE,AUTOSOMAL DOMINANT,?AUTOSOMAL DOMINANT, Y-LINKED, MITOCHONDRIAL";
     Phenotype pheno =
         Phenotype.builder()
             .omimId("123458")
-            .inheritanceModes(Set.of(AD,AR,XLD,XLR,XL))
+            .inheritanceModes(Set.of(AD,AR,XLD,XLR,XL,YL,MT))
             .build();
     Set<Phenotype> expected = Collections.singleton(pheno);
     assertEquals(expected, textToPhenotypeConverter.convert(input));

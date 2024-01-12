@@ -68,6 +68,12 @@ public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>,
         case "X-LINKED":
           modes.add(InheritanceMode.XL);
           break;
+        case "Y-LINKED":
+          modes.add(InheritanceMode.YL);
+          break;
+        case "MITOCHONDRIAL":
+          modes.add(InheritanceMode.MT);
+          break;
         case "AUTOSOMAL RECESSIVE":
           modes.add(InheritanceMode.AR);
           break;
@@ -75,7 +81,7 @@ public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>,
           modes.add(InheritanceMode.AD);
           break;
         default:
-          LOGGER.debug("Unsupported OMIM inheritance value: '{}'", value);
+          LOGGER.info("Unsupported OMIM inheritance value: '{}'", value);
       }
     }
     return modes;

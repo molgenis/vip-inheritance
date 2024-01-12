@@ -25,6 +25,9 @@ public class CgdMapper {
         case "AD":
           result.add(InheritanceMode.AD);
           break;
+        case "YL":
+          result.add(InheritanceMode.YL);
+          break;
         default:
           LOGGER.debug("Unsupported CGD inheritance value: '{}'", mode);
       }
