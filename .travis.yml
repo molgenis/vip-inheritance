@@ -5,6 +5,7 @@ jdk: openjdk17
 cache:
   directories:
     - "$HOME/.m2"
+    - "$HOME/graalvm"
 branches:
   only:
     - main
@@ -14,6 +15,10 @@ addons:
     organization: molgenis
     token:
       secure: KllHGH4ugHzXbcjNxmOdfxTflqgpYuMeFP95L2pLFn/nQq5p9CLbIiguN13Ha+J60/DAqcOG5wwMxso83B4+MVEQj+WPn/8X0Whn17oecVEABjV0h1Kw5+G7al5CtPWxL7Uv66xy/MW7mopoHMAPrm0t3S2V4vYWNprsCjKQu92dPk3L+OpyV7oZVDhrkxRvF4SsaWT65J5+z0gpsBp5rFYRIw51+aMFkSl3EUac2fVx4k6IO7P7Sw7gX0cC+3CKm2I1pdSfw1pXqPky79kByMtoJgc7ylcm8h7wOX6ZqLmC0FsG84IQ9xGnxeq9iqCV8RyHExJXQ9nPE2CM7SVJEJn4farDJmh2M1sbUNUHO7+GsQBvd33y9NLnBrJylWFq0Xnd3w0IpdBx8YVkTGSAwcB0ZA+c9QPthN5I3K/MK2iiP+JkgiB0sbO3qTM7bo3Cxkvnxilvx1J/lIaGK8db/klkv2B61zwSUOL/GP0cBv9EQTe+3gOS0Xs72YTpcCErWXIRu+QVjkGtNXPQlQKgcenl8qJRNXBGqwO3L0gjZpWp5U2oEcDbkuRx4pVuCcmNKI2/pj8t31l8INe5tC8xphEIpkqvX0rIYqUnMFcW7n4HsTnBlluafqwZCwypUIyIJAJNBwooQgOhWwKkgMEd2IxUSwMZwO7ZH849XorRSoQ=
+before_install:
+  - ./install-graal.sh $HOME
+  - export JAVA_HOME=$HOME/graalvm/graalvm
+  - export PATH=JAVA_HOME/bin:$PATH
 script:
   - mvn clean install sonar:sonar -Pcoverage -Dsonar.projectKey=molgenis_vip-inheritance
 deploy:
