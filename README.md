@@ -2,7 +2,7 @@
 [![Quality Status](https://sonarcloud.io/api/project_badges/measure?project=molgenis_vip-inheritance&metric=alert_status)](https://sonarcloud.io/dashboard?id=molgenis_vip-inheritance)
 # Variant Interpretation Pipeline - Inheritance annotation
 ## Requirements
-- Java 17
+- Java 21
 ## GenemapConverter
 A tool to converts the omim 'genemap2.txt' to a tab separated file that can be used by the VEP Inheritance Plugin.
 It creates a line for all gene symbols in the input file.
