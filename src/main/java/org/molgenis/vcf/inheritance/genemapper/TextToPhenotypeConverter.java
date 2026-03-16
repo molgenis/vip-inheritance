@@ -1,10 +1,8 @@
 package org.molgenis.vcf.inheritance.genemapper;
 
 import com.opencsv.bean.AbstractBeanField;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode;
@@ -41,7 +39,7 @@ public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>,
         String[] inheritance = m.group(5).split(",");
         Set<InheritanceMode> phenoInheritanceModes = mapInheritanceModes(inheritance);
         inheritanceModes.addAll(phenoInheritanceModes);
-        if (phenotypeName.length() != 0) {
+        if (!phenotypeName.isEmpty()) {
           phenotypeList.add(
               Phenotype.builder().omimId(omimId).inheritanceModes(phenoInheritanceModes).build());
         }
@@ -58,37 +56,22 @@ public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>,
     EnumSet<InheritanceMode> modes = EnumSet.noneOf(InheritanceMode.class);
     for (String value : values) {
       value = preprocessValue(value);
-      switch (value) {
-        case "X-LINKED DOMINANT":
-          modes.add(InheritanceMode.XLD);
-          break;
-        case "X-LINKED RECESSIVE":
-          modes.add(InheritanceMode.XLR);
-          break;
-        case "X-LINKED":
-          modes.add(InheritanceMode.XL);
-          break;
-        case "Y-LINKED":
-          modes.add(InheritanceMode.YL);
-          break;
-        case "MITOCHONDRIAL":
-          modes.add(InheritanceMode.MT);
-          break;
-        case "AUTOSOMAL RECESSIVE":
-          modes.add(InheritanceMode.AR);
-          break;
-        case "AUTOSOMAL DOMINANT":
-          modes.add(InheritanceMode.AD);
-          break;
-        default:
-          LOGGER.info("Unsupported OMIM inheritance value: '{}'", value);
-      }
+        switch (value) {
+            case "X-LINKED DOMINANT" -> modes.add(InheritanceMode.XLD);
+            case "X-LINKED RECESSIVE" -> modes.add(InheritanceMode.XLR);
+            case "X-LINKED" -> modes.add(InheritanceMode.XL);
+            case "Y-LINKED" -> modes.add(InheritanceMode.YL);
+            case "MITOCHONDRIAL" -> modes.add(InheritanceMode.MT);
+            case "AUTOSOMAL RECESSIVE" -> modes.add(InheritanceMode.AR);
+            case "AUTOSOMAL DOMINANT" -> modes.add(InheritanceMode.AD);
+            default -> LOGGER.info("Unsupported OMIM inheritance value: '{}'", value);
+        }
     }
     return modes;
   }
 
   private static String preprocessValue(String value) {
-    value = value.toUpperCase().trim();
+    value = value.toUpperCase(Locale.ROOT).trim();
     if(value.startsWith("?")){
       value = value.substring(1);
     }
