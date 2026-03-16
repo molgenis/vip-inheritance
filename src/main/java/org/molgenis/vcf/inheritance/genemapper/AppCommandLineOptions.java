@@ -36,20 +36,20 @@ class AppCommandLineOptions {
             .hasArg(true)
             .longOpt(OPT_INPUT_OMIM_LONG)
             .desc("Input OMIM genemap2 file.")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_HPO_INPUT)
             .hasArg(true)
             .required()
             .longOpt(OPT_HPO_INPUT_LONG)
             .desc("Input HPO .hpoa file.")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_INPUT_CGD)
             .hasArg(true)
             .longOpt(OPT_INPUT_CGD_LONG)
             .desc("Input cgd txt.gz file.")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_INPUT_IP)
             .required()
@@ -57,23 +57,23 @@ class AppCommandLineOptions {
             .longOpt(OPT_INPUT_IP_LONG)
             .desc(
                 "file with incomplete penetrance genes, containing at lease a 'Gene' and a 'Source' column (.tsv).")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_OUTPUT)
             .hasArg(true)
             .longOpt(OPT_OUTPUT_LONG)
             .desc("Output file (.tsv).")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_FORCE)
             .longOpt(OPT_FORCE_LONG)
             .desc("Override the output file if it already exists.")
-            .build());
+            .get());
     appOptions.addOption(
         Option.builder(OPT_DEBUG)
             .longOpt(OPT_DEBUG_LONG)
             .desc("Enable debug mode (additional logging).")
-            .build());
+            .get());
     APP_OPTIONS = appOptions;
     Options appVersionOptions = new Options();
     appVersionOptions.addOption(
@@ -81,7 +81,7 @@ class AppCommandLineOptions {
             .required()
             .longOpt(OPT_VERSION_LONG)
             .desc("Print version.")
-            .build());
+            .get());
     APP_VERSION_OPTIONS = appVersionOptions;
   }
 
@@ -117,15 +117,15 @@ class AppCommandLineOptions {
     Path inputPath = Path.of(commandLine.getOptionValue(option));
     if (!Files.exists(inputPath)) {
       throw new IllegalArgumentException(
-          format("Input file '%s' does not exist.", inputPath.toString()));
+          format("Input file '%s' does not exist.", inputPath));
     }
     if (Files.isDirectory(inputPath)) {
       throw new IllegalArgumentException(
-          format("Input file '%s' is a directory.", inputPath.toString()));
+          format("Input file '%s' is a directory.", inputPath));
     }
     if (!Files.isReadable(inputPath)) {
       throw new IllegalArgumentException(
-          format("Input file '%s' is not readable.", inputPath.toString()));
+          format("Input file '%s' is not readable.", inputPath));
     }
     String inputPathStr = inputPath.toString();
     if (!inputPathStr.endsWith(extension)) {
@@ -138,15 +138,15 @@ class AppCommandLineOptions {
     Path inputPath = Path.of(commandLine.getOptionValue(OPT_HPO_INPUT));
     if (!Files.exists(inputPath)) {
       throw new IllegalArgumentException(
-          format("Input HPO file '%s' does not exist.", inputPath.toString()));
+          format("Input HPO file '%s' does not exist.", inputPath));
     }
     if (Files.isDirectory(inputPath)) {
       throw new IllegalArgumentException(
-          format("Input HPO file '%s' is a directory.", inputPath.toString()));
+          format("Input HPO file '%s' is a directory.", inputPath));
     }
     if (!Files.isReadable(inputPath)) {
       throw new IllegalArgumentException(
-          format("Input HPO file '%s' is not readable.", inputPath.toString()));
+          format("Input HPO file '%s' is not readable.", inputPath));
     }
     String inputPathStr = inputPath.toString();
     if (!inputPathStr.endsWith(".hpoa")) {
@@ -164,7 +164,7 @@ class AppCommandLineOptions {
 
     if (!commandLine.hasOption(OPT_FORCE) && Files.exists(outputPath)) {
       throw new IllegalArgumentException(
-          format("Output file '%s' already exists", outputPath.toString()));
+          format("Output file '%s' already exists", outputPath));
     }
   }
 }
