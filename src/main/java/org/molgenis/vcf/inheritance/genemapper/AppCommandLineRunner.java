@@ -1,6 +1,10 @@
 package org.molgenis.vcf.inheritance.genemapper;
 
+import static java.util.Objects.requireNonNull;
+
 import ch.qos.logback.classic.Level;
+import java.io.IOException;
+import java.nio.file.Path;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -12,130 +16,126 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
-import static java.util.Objects.requireNonNull;
-
 @Component
 class AppCommandLineRunner implements CommandLineRunner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AppCommandLineRunner.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AppCommandLineRunner.class);
 
-    private static final int STATUS_MISC_ERROR = 1;
-    private static final int STATUS_COMMAND_LINE_USAGE_ERROR = 64;
+  private static final int STATUS_MISC_ERROR = 1;
+  private static final int STATUS_COMMAND_LINE_USAGE_ERROR = 64;
 
-    private final String appName;
-    private final String appVersion;
-    private final CommandLineParser commandLineParser;
+  private final String appName;
+  private final String appVersion;
+  private final CommandLineParser commandLineParser;
 
-    AppCommandLineRunner(
-            @Value("${app.name}") String appName, @Value("${app.version}") String appVersion) {
-        this.appName = requireNonNull(appName);
-        this.appVersion = requireNonNull(appVersion);
+  AppCommandLineRunner(
+      @Value("${app.name}") String appName, @Value("${app.version}") String appVersion) {
+    this.appName = requireNonNull(appName);
+    this.appVersion = requireNonNull(appVersion);
 
-        this.commandLineParser = new DefaultParser();
+    this.commandLineParser = new DefaultParser();
+  }
+
+  @Override
+  public void run(String... args) {
+    if (args.length == 1
+        && (args[0].equals("-" + AppCommandLineOptions.OPT_VERSION)
+            || args[0].equals("--" + AppCommandLineOptions.OPT_VERSION_LONG))) {
+      LOGGER.info("{} {}", appName, appVersion);
+      return;
     }
 
-    @Override
-    public void run(String... args) {
-        if (args.length == 1
-                && (args[0].equals("-" + AppCommandLineOptions.OPT_VERSION)
-                || args[0].equals("--" + AppCommandLineOptions.OPT_VERSION_LONG))) {
-            LOGGER.info("{} {}", appName, appVersion);
-            return;
+    for (String arg : args) {
+      if (arg.equals('-' + AppCommandLineOptions.OPT_DEBUG)
+          || arg.equals('-' + AppCommandLineOptions.OPT_DEBUG_LONG)) {
+        Logger rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        if (!(rootLogger instanceof ch.qos.logback.classic.Logger logger)) {
+          throw new ClassCastException("Expected root logger to be a logback logger");
         }
-
-        for (String arg : args) {
-            if (arg.equals('-' + AppCommandLineOptions.OPT_DEBUG)
-                    || arg.equals('-' + AppCommandLineOptions.OPT_DEBUG_LONG)) {
-                Logger rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-                if (!(rootLogger instanceof ch.qos.logback.classic.Logger logger)) {
-                    throw new ClassCastException("Expected root logger to be a logback logger");
-                }
-                logger.setLevel(Level.DEBUG);
-                break;
-            }
-        }
-
-        CommandLine commandLine = getCommandLine(args);
-        AppCommandLineOptions.validateCommandLine(commandLine);
-
-        try {
-            Path omimPath = null;
-            Path cgdPath = null;
-            Path ipPath = null;
-
-            if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_OMIM)) {
-                omimPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT_OMIM));
-            }
-            if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_CGD)) {
-                cgdPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT_CGD));
-            }
-            if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_IP)) {
-                ipPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT_IP));
-            }
-            GenemapConverter.run(
-                    omimPath,
-                    cgdPath,
-                    Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_HPO_INPUT)),
-                    ipPath,
-                    getOutput(commandLine));
-
-        } catch (Exception e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
-            System.exit(STATUS_MISC_ERROR);
-        }
+        logger.setLevel(Level.DEBUG);
+        break;
+      }
     }
 
-    @SuppressWarnings("NullAway")
-    private CommandLine getCommandLine(String[] args) {
-        CommandLine commandLine = null;
-        try {
-            commandLine = commandLineParser.parse(AppCommandLineOptions.getAppOptions(), args);
-        } catch (ParseException e) {
-            logException(e);
-            System.exit(STATUS_COMMAND_LINE_USAGE_ERROR);
-        }
-        return commandLine;
-    }
+    CommandLine commandLine = getCommandLine(args);
+    AppCommandLineOptions.validateCommandLine(commandLine);
 
-    private Path getOutput(CommandLine commandLine) {
-        Path outputPath;
-        if (commandLine.hasOption(AppCommandLineOptions.OPT_OUTPUT)) {
-            outputPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_OUTPUT));
-        } else {
-            String output;
-            if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_OMIM)) {
-                output =
-                        commandLine
-                                .getOptionValue(AppCommandLineOptions.OPT_INPUT_OMIM)
-                                .replace(".txt", "out.tsv");
-            } else {
-                output =
-                        commandLine
-                                .getOptionValue(AppCommandLineOptions.OPT_INPUT_CGD)
-                                .replace(".txt.gz", "out.tsv");
-            }
-            outputPath = Path.of(output);
-        }
-        return outputPath;
-    }
+    try {
+      Path omimPath = null;
+      Path cgdPath = null;
+      Path ipPath = null;
 
-    @SuppressWarnings("java:S106")
-    private void logException(ParseException e) {
-        LOGGER.error(e.getLocalizedMessage(), e);
+      if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_OMIM)) {
+        omimPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT_OMIM));
+      }
+      if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_CGD)) {
+        cgdPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT_CGD));
+      }
+      if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_IP)) {
+        ipPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_INPUT_IP));
+      }
+      GenemapConverter.run(
+          omimPath,
+          cgdPath,
+          Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_HPO_INPUT)),
+          ipPath,
+          getOutput(commandLine));
 
-        // following information is only logged to system out
-        System.out.println();
-        HelpFormatter formatter = HelpFormatter.builder().setComparator(null).get();
-        String cmdLineSyntax = "java -jar " + appName + ".jar";
-        try {
-            formatter.printHelp(cmdLineSyntax, "", AppCommandLineOptions.getAppOptions(), "", true);
-            System.out.println();
-            formatter.printHelp(cmdLineSyntax, "", AppCommandLineOptions.getAppVersionOptions(), "", true);
-        } catch (IOException ex) {
-            LOGGER.error("failed to log exception");
-        }
+    } catch (Exception e) {
+      LOGGER.error(e.getLocalizedMessage(), e);
+      System.exit(STATUS_MISC_ERROR);
     }
+  }
+
+  @SuppressWarnings("NullAway")
+  private CommandLine getCommandLine(String[] args) {
+    CommandLine commandLine = null;
+    try {
+      commandLine = commandLineParser.parse(AppCommandLineOptions.getAppOptions(), args);
+    } catch (ParseException e) {
+      logException(e);
+      System.exit(STATUS_COMMAND_LINE_USAGE_ERROR);
+    }
+    return commandLine;
+  }
+
+  private Path getOutput(CommandLine commandLine) {
+    Path outputPath;
+    if (commandLine.hasOption(AppCommandLineOptions.OPT_OUTPUT)) {
+      outputPath = Path.of(commandLine.getOptionValue(AppCommandLineOptions.OPT_OUTPUT));
+    } else {
+      String output;
+      if (commandLine.hasOption(AppCommandLineOptions.OPT_INPUT_OMIM)) {
+        output =
+            commandLine
+                .getOptionValue(AppCommandLineOptions.OPT_INPUT_OMIM)
+                .replace(".txt", "out.tsv");
+      } else {
+        output =
+            commandLine
+                .getOptionValue(AppCommandLineOptions.OPT_INPUT_CGD)
+                .replace(".txt.gz", "out.tsv");
+      }
+      outputPath = Path.of(output);
+    }
+    return outputPath;
+  }
+
+  @SuppressWarnings("java:S106")
+  private void logException(ParseException e) {
+    LOGGER.error(e.getLocalizedMessage(), e);
+
+    // following information is only logged to system out
+    System.out.println();
+    HelpFormatter formatter = HelpFormatter.builder().setComparator(null).get();
+    String cmdLineSyntax = "java -jar " + appName + ".jar";
+    try {
+      formatter.printHelp(cmdLineSyntax, "", AppCommandLineOptions.getAppOptions(), "", true);
+      System.out.println();
+      formatter.printHelp(
+          cmdLineSyntax, "", AppCommandLineOptions.getAppVersionOptions(), "", true);
+    } catch (IOException ex) {
+      LOGGER.error("failed to log exception");
+    }
+  }
 }

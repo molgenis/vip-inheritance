@@ -27,6 +27,6 @@ class CgdMapperTest {
         Arguments.of("AD", singleton(AD)),
         Arguments.of("XL", singleton(XL)),
         Arguments.of("AD/Digenic", singleton(AD)),
-        Arguments.of("AD/Maternal/AR", Set.of(AD,AR)));
+        Arguments.of("AD/Maternal/AR", Set.of(AD, AR)));
   }
 }

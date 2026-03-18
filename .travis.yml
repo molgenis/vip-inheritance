@@ -1,22 +1,45 @@
+arch: amd64
 os: linux
-dist: jammy
-language: java
-jdk: openjdk25
+dist: noble
+language: minimal
 cache:
   directories:
     - "$HOME/.m2"
+    - "$HOME/jdk"
+    - "$HOME/mvn"
 branches:
   only:
     - main
-    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+    - "/^v\\d+\\.\\d+(\\.\\d+)?(-\\S*)?$/"
+before_install:
+  # install temurin 25
+  - |
+    if [ ! -f "$HOME/jdk/bin/java" ]; then
+      curl --fail --silent --show-error --location --output "$HOME/jdk.tar.gz" \
+        https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.2%2B10/OpenJDK25U-jdk_x64_linux_hotspot_25.0.2_10.tar.gz
+      echo "987387933b64b9833846dee373b640440d3e1fd48a04804ec01a6dbf718e8ab8  $HOME/jdk.tar.gz" | sha256sum --check          
+      tar --extract --gunzip --strip-components=1 --directory="$HOME/jdk" -f "$HOME/jdk.tar.gz"
+      rm "$HOME/jdk.tar.gz"
+    fi
+  # install maven 3.9.11
+  - |
+    if [ ! -f "$HOME/mvn/bin/mvn" ]; then
+      curl --fail --silent --show-error --location --output "$HOME/mvn.tar.gz" \
+        https://archive.apache.org/dist/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz
+      echo "4b7195b6a4f5c81af4c0212677a32ee8143643401bc6e1e8412e6b06ea82beac  $HOME/mvn.tar.gz" | sha256sum --check
+      tar --extract --gunzip --strip-components=1 --directory="$HOME/mvn" -f "$HOME/mvn.tar.gz"
+      rm "$HOME/mvn.tar.gz"
+    fi
 script:
-  - mvn clean install -Pcoverage
+  - mvn verify --batch-mode --no-transfer-progress --activate-profiles coverage -Djacoco.skip.report=true
 deploy:
   provider: releases
   token:
     secure: cgRNWMWg6I1FAsBkkKtR5ervgVAl18TCpbEckfwSwyaqZppK16QTx06iTFv1fAoTK2/rxPMMoonlrsxj2P9BZ9yKkCzow1Icdqppbd63VqCDUWLBwEhOVNVEZtDs5LGcIvBwoyqB2uA+/PJoyZ9sRlX5I6gmlwTDkiYiknDL4Re+DQkkDUPr+c80GX+xTTMKJgSePlt4b0cq0TiRk8nqDJtPTho/CYnRvQfBpOYa91BZ0WqiIxpwnNbBEbFxHBOFOTPX04Aq3ec42BFL4QDeK37DRd9B49z2s+PKvcxj5kFO+y/r5AnuuaH8wnxYxSU1+rmLAnFYfWfGCzE2Ipf1dxBx5ixwF+fJkpyJvwe6Z/OFQV375lgUaY3bpbMyQ72JT/ZC0ATgZut2pkuOfGWupDiTqxnAtX8K/YwcQjWd9kN+Fxq6d3eSa6CiJciHkAJk4KL4FxaR+czqUWk0j3M2qAtZmkvaUPqFvka00iecEkujdfO34rg0VzXm96PY1cBV1AQUKLZAjT0o0nkHMLwKGUoIWCZTr/ow81H5sNwagUYWpc6QdjTM4m25Xn4++JvtxK+ivqbg7x60wZQKhAWJah6nvidEm3ReV/h6X8EwDGP8pzYLDpRT5IR5EbzfY/Lp6Oo2S8Ij+9gHiTA0oXhjpof7wwLZE0VahE73AHtFnI4=
   file: target/genemap-mapper.jar
-  prerelease: true
   on:
     tags: true
-  edge: true # opt in to dpl v2
+env:
+  global:
+    - JAVA_HOME=$HOME/jdk
+    - PATH=$HOME/jdk/bin:$HOME/mvn/bin:$PATH

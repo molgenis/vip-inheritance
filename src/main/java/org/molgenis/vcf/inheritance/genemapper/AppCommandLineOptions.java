@@ -116,16 +116,13 @@ class AppCommandLineOptions {
   private static void validateFile(CommandLine commandLine, String option, String extension) {
     Path inputPath = Path.of(commandLine.getOptionValue(option));
     if (!Files.exists(inputPath)) {
-      throw new IllegalArgumentException(
-          format("Input file '%s' does not exist.", inputPath));
+      throw new IllegalArgumentException(format("Input file '%s' does not exist.", inputPath));
     }
     if (Files.isDirectory(inputPath)) {
-      throw new IllegalArgumentException(
-          format("Input file '%s' is a directory.", inputPath));
+      throw new IllegalArgumentException(format("Input file '%s' is a directory.", inputPath));
     }
     if (!Files.isReadable(inputPath)) {
-      throw new IllegalArgumentException(
-          format("Input file '%s' is not readable.", inputPath));
+      throw new IllegalArgumentException(format("Input file '%s' is not readable.", inputPath));
     }
     String inputPathStr = inputPath.toString();
     if (!inputPathStr.endsWith(extension)) {
@@ -137,16 +134,13 @@ class AppCommandLineOptions {
   private static void validateHpo(CommandLine commandLine) {
     Path inputPath = Path.of(commandLine.getOptionValue(OPT_HPO_INPUT));
     if (!Files.exists(inputPath)) {
-      throw new IllegalArgumentException(
-          format("Input HPO file '%s' does not exist.", inputPath));
+      throw new IllegalArgumentException(format("Input HPO file '%s' does not exist.", inputPath));
     }
     if (Files.isDirectory(inputPath)) {
-      throw new IllegalArgumentException(
-          format("Input HPO file '%s' is a directory.", inputPath));
+      throw new IllegalArgumentException(format("Input HPO file '%s' is a directory.", inputPath));
     }
     if (!Files.isReadable(inputPath)) {
-      throw new IllegalArgumentException(
-          format("Input HPO file '%s' is not readable.", inputPath));
+      throw new IllegalArgumentException(format("Input HPO file '%s' is not readable.", inputPath));
     }
     String inputPathStr = inputPath.toString();
     if (!inputPathStr.endsWith(".hpoa")) {
@@ -163,8 +157,7 @@ class AppCommandLineOptions {
     Path outputPath = Path.of(commandLine.getOptionValue(OPT_OUTPUT));
 
     if (!commandLine.hasOption(OPT_FORCE) && Files.exists(outputPath)) {
-      throw new IllegalArgumentException(
-          format("Output file '%s' already exists", outputPath));
+      throw new IllegalArgumentException(format("Output file '%s' already exists", outputPath));
     }
   }
 }
