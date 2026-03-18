@@ -1,7 +1,7 @@
 [![Build Status](https://app.travis-ci.com/molgenis/vip-inheritance.svg?branch=main)](https://app.travis-ci.com/molgenis/vip-inheritance)
 # Variant Interpretation Pipeline - Inheritance annotation
 ## Requirements
-- Java 21
+- Java 25
 ## GenemapConverter
 A tool to converts the omim 'genemap2.txt' to a tab separated file that can be used by the VEP Inheritance Plugin.
 It creates a line for all gene symbols in the input file.
