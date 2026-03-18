@@ -1,7 +1,6 @@
 package org.molgenis.vcf.inheritance.genemapper;
 
 import com.opencsv.bean.AbstractBeanField;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,7 +18,7 @@ public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>,
   public static final String PATTERN = "(.*),\\s((\\d*)\\s(\\(\\d*\\))),(.*)";
 
   @Override
-  protected Set<Phenotype> convert(String phenotypeValue){
+  protected Set<Phenotype> convert(String phenotypeValue) {
     String[] phenotypes = phenotypeValue.split(SUBVALUE_SEPARATOR);
     EnumSet<InheritanceMode> inheritanceModes = EnumSet.noneOf(InheritanceMode.class);
     return processPhenotypes(phenotypes, inheritanceModes);
@@ -56,23 +55,23 @@ public class TextToPhenotypeConverter extends AbstractBeanField<List<Phenotype>,
     EnumSet<InheritanceMode> modes = EnumSet.noneOf(InheritanceMode.class);
     for (String value : values) {
       value = preprocessValue(value);
-        switch (value) {
-            case "X-LINKED DOMINANT" -> modes.add(InheritanceMode.XLD);
-            case "X-LINKED RECESSIVE" -> modes.add(InheritanceMode.XLR);
-            case "X-LINKED" -> modes.add(InheritanceMode.XL);
-            case "Y-LINKED" -> modes.add(InheritanceMode.YL);
-            case "MITOCHONDRIAL" -> modes.add(InheritanceMode.MT);
-            case "AUTOSOMAL RECESSIVE" -> modes.add(InheritanceMode.AR);
-            case "AUTOSOMAL DOMINANT" -> modes.add(InheritanceMode.AD);
-            default -> LOGGER.info("Unsupported OMIM inheritance value: '{}'", value);
-        }
+      switch (value) {
+        case "X-LINKED DOMINANT" -> modes.add(InheritanceMode.XLD);
+        case "X-LINKED RECESSIVE" -> modes.add(InheritanceMode.XLR);
+        case "X-LINKED" -> modes.add(InheritanceMode.XL);
+        case "Y-LINKED" -> modes.add(InheritanceMode.YL);
+        case "MITOCHONDRIAL" -> modes.add(InheritanceMode.MT);
+        case "AUTOSOMAL RECESSIVE" -> modes.add(InheritanceMode.AR);
+        case "AUTOSOMAL DOMINANT" -> modes.add(InheritanceMode.AD);
+        default -> LOGGER.info("Unsupported OMIM inheritance value: '{}'", value);
+      }
     }
     return modes;
   }
 
   private static String preprocessValue(String value) {
     value = value.toUpperCase(Locale.ROOT).trim();
-    if(value.startsWith("?")){
+    if (value.startsWith("?")) {
       value = value.substring(1);
     }
     return value;

@@ -23,22 +23,19 @@ class TextToPhenotypeConverterTest {
     String input =
         "Epilepsy, juvenile myoclonic, susceptibility to, 123458 (3), Autosomal dominant";
 
-    Phenotype pheno =
-        Phenotype.builder()
-            .omimId("123458")
-            .inheritanceModes(Set.of(AD))
-            .build();
+    Phenotype pheno = Phenotype.builder().omimId("123458").inheritanceModes(Set.of(AD)).build();
     Set<Phenotype> expected = Collections.singleton(pheno);
     assertEquals(expected, textToPhenotypeConverter.convert(input));
   }
 
   @Test
   void parseOmimLineAllValues() {
-    String input ="Epilepsy, juvenile myoclonic, susceptibility to, 123458 (3),X-LINKED DOMINANT,X-LINKED RECESSIVE,?X-LINKED RECESSIVE,X-LINKED,AUTOSOMAL RECESSIVE,AUTOSOMAL DOMINANT,?AUTOSOMAL DOMINANT, Y-LINKED, MITOCHONDRIAL";
+    String input =
+        "Epilepsy, juvenile myoclonic, susceptibility to, 123458 (3),X-LINKED DOMINANT,X-LINKED RECESSIVE,?X-LINKED RECESSIVE,X-LINKED,AUTOSOMAL RECESSIVE,AUTOSOMAL DOMINANT,?AUTOSOMAL DOMINANT, Y-LINKED, MITOCHONDRIAL";
     Phenotype pheno =
         Phenotype.builder()
             .omimId("123458")
-            .inheritanceModes(Set.of(AD,AR,XLD,XLR,XL,YL,MT))
+            .inheritanceModes(Set.of(AD, AR, XLD, XLR, XL, YL, MT))
             .build();
     Set<Phenotype> expected = Collections.singleton(pheno);
     assertEquals(expected, textToPhenotypeConverter.convert(input));
@@ -46,32 +43,20 @@ class TextToPhenotypeConverterTest {
 
   @Test
   void parseOmimMultiGeneLine() {
-    String input =
-        "Mental retardation, autosomal dominant 42, 123456 (3), Autosomal recessive";
-    Phenotype pheno =
-        Phenotype.builder()
-            .omimId("123456")
-            .inheritanceModes(Set.of(AR))
-            .build();
+    String input = "Mental retardation, autosomal dominant 42, 123456 (3), Autosomal recessive";
+    Phenotype pheno = Phenotype.builder().omimId("123456").inheritanceModes(Set.of(AR)).build();
     Set<Phenotype> expected = Collections.singleton(pheno);
     assertEquals(expected, textToPhenotypeConverter.convert(input));
   }
 
   @Test
   void parseOmimMultiPhenoLine() {
-    String input ="Mental retardation, autosomal dominant 42, 123456 (3), Autosomal dominant; "
+    String input =
+        "Mental retardation, autosomal dominant 42, 123456 (3), Autosomal dominant; "
             + "Leukemia, acute lymphoblastic, somatic, 123457 (3), X-Linked";
 
-    Phenotype pheno1 =
-        Phenotype.builder()
-            .omimId("123456")
-            .inheritanceModes(Set.of(AD))
-            .build();
-    Phenotype pheno2 =
-        Phenotype.builder()
-            .omimId("123457")
-            .inheritanceModes(Set.of(XL))
-            .build();
+    Phenotype pheno1 = Phenotype.builder().omimId("123456").inheritanceModes(Set.of(AD)).build();
+    Phenotype pheno2 = Phenotype.builder().omimId("123457").inheritanceModes(Set.of(XL)).build();
     Set<Phenotype> expected = Set.of(pheno1, pheno2);
     assertEquals(expected, textToPhenotypeConverter.convert(input));
   }
@@ -82,11 +67,7 @@ class TextToPhenotypeConverterTest {
         "Mental retardation, autosomal dominant 42, 123456 (3), Autosomal dominant; "
             + "Leukemia, acute lymphoblastic, somatic, 123457 (3)";
 
-    Phenotype pheno =
-        Phenotype.builder()
-            .omimId("123456")
-            .inheritanceModes(Set.of(AD))
-            .build();
+    Phenotype pheno = Phenotype.builder().omimId("123456").inheritanceModes(Set.of(AD)).build();
     Set<Phenotype> expected = Collections.singleton(pheno);
 
     assertEquals(expected, textToPhenotypeConverter.convert(input));
@@ -96,11 +77,7 @@ class TextToPhenotypeConverterTest {
   void parseOmimBracketPhenoLine() {
     String input =
         "{Epilepsy, generalized, with febrile seizures plus, type 5, susceptibility to}, 123456 (3), X-Linked";
-    Phenotype pheno =
-        Phenotype.builder()
-            .omimId("123456")
-            .inheritanceModes(Set.of(XL))
-            .build();
+    Phenotype pheno = Phenotype.builder().omimId("123456").inheritanceModes(Set.of(XL)).build();
     Set<Phenotype> expected = Collections.singleton(pheno);
     assertEquals(expected, textToPhenotypeConverter.convert(input));
   }

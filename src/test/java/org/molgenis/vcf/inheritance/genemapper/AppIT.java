@@ -12,8 +12,7 @@ import org.springframework.util.ResourceUtils;
 
 class AppIT {
 
-  @TempDir
-  Path sharedTempDir;
+  @TempDir Path sharedTempDir;
 
   @Test
   void test() throws IOException {
@@ -23,7 +22,9 @@ class AppIT {
     String ipFile = ResourceUtils.getFile("classpath:incompletePenetrance.tsv").toString();
     String outputFile = sharedTempDir.resolve("expected.tsv").toString();
 
-    String[] args = {"-i", omimFile,"-c", cgdFile, "-o", outputFile, "-f", "-h", hpoFile, "-ip", ipFile};
+    String[] args = {
+      "-i", omimFile, "-c", cgdFile, "-o", outputFile, "-f", "-h", hpoFile, "-ip", ipFile
+    };
     SpringApplication.run(App.class, args);
 
     String actual = Files.readString(Path.of(outputFile));

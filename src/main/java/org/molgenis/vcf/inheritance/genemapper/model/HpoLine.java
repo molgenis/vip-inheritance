@@ -11,13 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class HpoLine {
-  @CsvBindByName(
-      column = "database_id",
-      required = true)
+  @CsvBindByName(column = "database_id", required = true)
   String databaseId;
 
-  @CsvBindByName(
-      column = "hpo_id",
-      required = true)
+  @CsvBindByName(column = "hpo_id", required = true)
   String hpoId;
 }

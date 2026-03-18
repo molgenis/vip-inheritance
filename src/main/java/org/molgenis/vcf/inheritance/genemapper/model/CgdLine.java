@@ -11,14 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CgdLine {
-  @CsvBindByName(
-      column = "ENTREZ GENE ID",
-      required = true)
+  @CsvBindByName(column = "ENTREZ GENE ID", required = true)
   String gene;
 
-  @CsvBindByName(
-      column = "INHERITANCE",
-      required = true)
+  @CsvBindByName(column = "INHERITANCE", required = true)
   String inheritance;
-
 }

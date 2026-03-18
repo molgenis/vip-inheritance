@@ -14,13 +14,9 @@ import org.molgenis.vcf.inheritance.genemapper.TextToPhenotypeConverter;
 @AllArgsConstructor
 @Builder
 public class OmimLine {
-  @CsvBindByName(
-      column = "Entrez Gene ID",
-      required = true)
+  @CsvBindByName(column = "Entrez Gene ID", required = true)
   String gene;
 
-  @CsvCustomBindByName(
-      column = "Phenotypes",
-      converter = TextToPhenotypeConverter.class)
+  @CsvCustomBindByName(column = "Phenotypes", converter = TextToPhenotypeConverter.class)
   Set<Phenotype> phenotypes;
 }

@@ -8,8 +8,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.AD;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.AR;
-import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.XLD;
 import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.XL;
+import static org.molgenis.vcf.inheritance.genemapper.model.InheritanceMode.XLD;
 
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.lang.reflect.Field;
@@ -45,7 +45,7 @@ class GenemapConverterTest {
   }
 
   @Test
-  void testCommentParseException() throws NoSuchFieldException {
+  void testCommentParseException() {
     CsvRequiredFieldEmptyException csvParsingException = mock(CsvRequiredFieldEmptyException.class);
     when(csvParsingException.getLine())
         .thenReturn(new String[] {"#This", "is", "a", "comment", "line"});
@@ -60,11 +60,11 @@ class GenemapConverterTest {
     when(csvParsingException.getDestinationField()).thenReturn(field);
     when(csvParsingException.getLine()).thenReturn(new String[] {"non", "comment", "line"});
     when(csvParsingException.getMessage()).thenReturn("test message");
-    when(csvParsingException.getLineNumber()).thenReturn(123l);
+    when(csvParsingException.getLineNumber()).thenReturn(123L);
     GenemapConverter.handleCsvParseExceptions(Collections.singletonList(csvParsingException));
     assertAll(
         () -> assertEquals(1, TestAppender.events.size()),
-        () -> assertEquals("123,test message", TestAppender.events.get(0).getMessage()));
+        () -> assertEquals("123,test message", TestAppender.events.getFirst().getMessage()));
   }
 
   @Test
@@ -75,12 +75,11 @@ class GenemapConverterTest {
     Phenotype phenotype3 =
         Phenotype.builder().omimId("12345").inheritanceModes(Set.of(AR, AD)).build();
     Phenotype phenotype4 =
-            Phenotype.builder().omimId("123456").inheritanceModes(emptySet()).build();
+        Phenotype.builder().omimId("123456").inheritanceModes(emptySet()).build();
     OmimLine line1 =
         OmimLine.builder().gene("ENS1234567").phenotypes(Set.of(phenotype1, phenotype2)).build();
     OmimLine line2 = OmimLine.builder().gene("ENS1234568").phenotypes(Set.of(phenotype3)).build();
-    OmimLine line3 =
-            OmimLine.builder().gene("1234567").phenotypes(Set.of(phenotype4)).build();
+    OmimLine line3 = OmimLine.builder().gene("1234567").phenotypes(Set.of(phenotype4)).build();
     CgdLine cgdLine1 = CgdLine.builder().gene("ENS1234569").inheritance("XL").build();
     CgdLine cgdLine2 = CgdLine.builder().gene("1234567").inheritance("AD").build();
     Set<GeneInheritanceValue> expected = new HashSet<>();
@@ -119,12 +118,12 @@ class GenemapConverterTest {
             .isIncompletePenetrance(true)
             .build());
     expected.add(
-            GeneInheritanceValue.builder()
-                    .hpoInheritanceModes(emptySet())
-                    .geneSymbol("1234567")
-                    .inheritanceModes(Set.of(AD))
-                    .isIncompletePenetrance(false)
-                    .build());
+        GeneInheritanceValue.builder()
+            .hpoInheritanceModes(emptySet())
+            .geneSymbol("1234567")
+            .inheritanceModes(Set.of(AD))
+            .isIncompletePenetrance(false)
+            .build());
 
     assertEquals(
         expected,
@@ -132,11 +131,14 @@ class GenemapConverterTest {
             GenemapConverter.convertToGeneInheritanceValue(
                 asList(line1, line2, line3), asList(cgdLine1, cgdLine2),
                 Map.of(
-                    "123",
-                    Set.of("HP_0124"),
-                    "1234",
-                    Set.of("HP_0123"),
-                    "12345",
-                    Set.of("HP_012345")), List.of(new IncompletePenetranceLine("ENS1234569","EntrezGene"),new IncompletePenetranceLine("ENS1234567","EntrezGene")))));
+                        "123",
+                        Set.of("HP_0124"),
+                        "1234",
+                        Set.of("HP_0123"),
+                        "12345",
+                        Set.of("HP_012345")),
+                    List.of(
+                        new IncompletePenetranceLine("ENS1234569", "EntrezGene"),
+                        new IncompletePenetranceLine("ENS1234567", "EntrezGene")))));
   }
 }

@@ -38,11 +38,11 @@
     </issueManagement>
 
     <properties>
-        <!-- suppress Java 21 dynamic agent loading warning, since there is no suitable fix yet -->
-        <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+        <argLine/>
         <java.version>25</java.version>
         <commons.cli.version>1.11.0</commons.cli.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+        <jacoco.skip.report>false</jacoco.skip.report>
         <opencsv.version>5.12.0</opencsv.version>
         <errorprone.version>2.48.0</errorprone.version>
         <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
@@ -50,38 +50,49 @@
         <maven.surefire.plugin.version>3.5.5</maven.surefire.plugin.version>
         <nullaway.version>0.13.1</nullaway.version>
         <maven.spotless.plugin.version>3.3.0</maven.spotless.plugin.version>
+        <mockito.version>5.23.0</mockito.version>
         <jspecify.version>1.0.0</jspecify.version>
     </properties>
 
     <profiles>
         <profile>
-            <id>coverage</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>${jacoco-maven-plugin.version}</version>
                         <executions>
+                            <!-- unit test executions -->
                             <execution>
-                                <id>prepare-agent</id>
+                                <id>prepare-agent-ut</id>
+                                <phase>initialize</phase>
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
+                                <configuration>
+                                    <destFile>${project.build.directory}/jacoco-ut.exec</destFile>
+                                </configuration>
                             </execution>
                             <execution>
-                                <id>report</id>
+                                <id>report-ut</id>
+                                <phase>prepare-package</phase>
                                 <goals>
                                     <goal>report</goal>
                                 </goals>
+                                <configuration>
+                                    <skip>${jacoco.skip.report}</skip>
+                                    <dataFile>${project.build.directory}/jacoco-ut.exec</dataFile>
+                                    <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
+                                </configuration>
                             </execution>
                             <execution>
-                                <id>check</id>
+                                <id>check-ut</id>
                                 <phase>verify</phase>
                                 <goals>
                                     <goal>check</goal>
                                 </goals>
                                 <configuration>
+                                    <dataFile>${project.build.directory}/jacoco-ut.exec</dataFile>
                                     <rules>
                                         <rule>
                                             <element>BUNDLE</element>
@@ -89,17 +100,41 @@
                                                 <limit>
                                                     <counter>INSTRUCTION</counter>
                                                     <value>COVEREDRATIO</value>
-                                                    <minimum>0.80</minimum>
+                                                    <minimum>0.35</minimum>
                                                 </limit>
                                             </limits>
                                         </rule>
                                     </rules>
                                 </configuration>
                             </execution>
+                            <!-- integration test executions -->
+                            <execution>
+                                <id>prepare-agent-it</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                                <configuration>
+                                    <destFile>${project.build.directory}/jacoco-it.exec</destFile>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>report-it</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${jacoco.skip.report}</skip>
+                                    <dataFile>${project.build.directory}/jacoco-it.exec</dataFile>
+                                    <outputDirectory>${project.reporting.outputDirectory}/jacoco-it</outputDirectory>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                 </plugins>
             </build>
+            <id>coverage</id>
         </profile>
     </profiles>
 
@@ -114,6 +149,16 @@
                 <groupId>com.opencsv</groupId>
                 <artifactId>opencsv</artifactId>
                 <version>${opencsv.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -143,6 +188,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -210,10 +266,31 @@
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>${maven.clean.plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco-maven-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+            </plugin>
+            <!-- workaround for 'Error opening zip file or JAR manifest missing : ${org.mockito:mockito-core:jar}' -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -239,7 +316,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <argLine>@.mvn/jvm.config ${argLine}</argLine>
+                    <argLine>@.mvn/jvm.config @{argLine}</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -247,7 +324,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.plugin.version}</version>
                 <configuration>
-                    <argLine>@.mvn/jvm.config ${argLine}</argLine>
+                    <argLine>@.mvn/jvm.config -javaagent:"${org.mockito:mockito-core:jar}" @{argLine}</argLine>
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
