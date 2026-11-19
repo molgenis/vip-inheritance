@@ -13,6 +13,7 @@ branches:
     - "/^v\\d+\\.\\d+(\\.\\d+)?(-\\S*)?$/"
 before_install:
   # install temurin 25
+  # important: drop cache on change, see https://app.travis-ci.com/github/molgenis/vip-inheritance/caches
   - |
     if [ ! -f "$HOME/jdk/bin/java" ]; then
       curl --fail --silent --show-error --location --output "$HOME/jdk.tar.gz" \
@@ -22,6 +23,7 @@ before_install:
       rm "$HOME/jdk.tar.gz"
     fi
   # install maven 3.10.0
+  # important: drop cache on change, see https://app.travis-ci.com/github/molgenis/vip-inheritance/caches
   - |
     if [ ! -f "$HOME/mvn/bin/mvn" ]; then
       curl --fail --silent --show-error --location --output "$HOME/mvn.tar.gz" \
